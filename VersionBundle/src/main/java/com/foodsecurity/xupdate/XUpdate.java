@@ -337,6 +337,17 @@ public class XUpdate {
         return this;
     }
 
+    /**
+     * 设置安装监听
+     *
+     * @param onInstallListener
+     * @return
+     */
+    public XUpdate setOnBundleInstallListener(OnInstallListener onInstallListener) {
+        mOnBundleInstallListener = onInstallListener;
+        return this;
+    }
+
     //===========================更新出错===================================//
 
     /**
@@ -352,5 +363,9 @@ public class XUpdate {
 
     public boolean canOpenBundle(String alias) {
         return UpdateFacade.canOpenBundle(alias);
+    }
+
+    public boolean isInstalled(String alias) {
+        return UpdateFacade.isInstalled(alias);
     }
 }

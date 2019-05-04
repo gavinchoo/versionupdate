@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
+import com.foodsecurity.xupdate.XUpdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
@@ -37,6 +38,11 @@ public class UpdateBundleMgr {
      * 插件已安装，检测版本信息失败了
      */
     public static final String BUNDLE_STATUS_INSTALLED_NO_VERSION = "installed_no_version_info";
+
+    /**
+     * 插件未安装，检测版本信息失败了
+     */
+    public static final String BUNDLE_STATUS_NOT_INSTALL_NO_VERSION = "not_install_no_version_info";
 
     private static UpdateBundleMgr sInstance;
 
@@ -103,8 +109,12 @@ public class UpdateBundleMgr {
             return true;
         }
 
+        if (BUNDLE_STATUS_NOT_INSTALL_NO_VERSION.equals(bundleStatus)) {
+            return false;
+        }
+
         if (TextUtils.isEmpty(newUpdate.getApkCacheDir())) {
-            newUpdate.setApkCacheDir(getBundlesRootPath());
+            newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPath());
         }
         mIUpdateProxy.setUpdateEntity(newUpdate);
         if (BUNDLE_STATUS_NOT_INSTALL.equals(bundleStatus)) {
@@ -115,8 +125,17 @@ public class UpdateBundleMgr {
         return false;
     }
 
+    public boolean isInstalled(String alias) {
+        UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
+        return null != localUpdate;
+    }
+
     public String getBundleStatus(String alias, UpdateEntity newUpdate) {
         UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
+        if (null == localUpdate && null == newUpdate) {
+            return BUNDLE_STATUS_NOT_INSTALL_NO_VERSION;
+        }
+
         if (null == localUpdate) {
             return BUNDLE_STATUS_NOT_INSTALL;
         }
@@ -170,7 +189,7 @@ public class UpdateBundleMgr {
                         localUpdate.getVersionName().replace(".", ""));
                 if (localVersionCode != newVersionCode) {
 
-                    File file = new File(getBundlesRootPath() +
+                    File file = new File(UpdateFacade.getBundlesRootPath() +
                             File.separator + localUpdate.getAlias() + "_" + localUpdate.getVersionName());
                     if (null != file && file.exists()) {
                         deleteDirWihtFile(file);
@@ -199,7 +218,7 @@ public class UpdateBundleMgr {
     public List<UpdateEntity> getLocalBundleVersionInfo() {
         List<UpdateEntity> localVersionInfo = new ArrayList<>();
 
-        File rootPath = new File(getBundlesRootPath());
+        File rootPath = new File(UpdateFacade.getBundlesRootPath());
         File[] bundles = rootPath.listFiles();
         if (null == bundles) {
             return localVersionInfo;
@@ -225,10 +244,6 @@ public class UpdateBundleMgr {
         }
 
         return localVersionInfo;
-    }
-
-    public String getBundlesRootPath() {
-        return mIUpdateProxy.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
     }
 
     /**

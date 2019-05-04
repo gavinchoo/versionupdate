@@ -407,8 +407,10 @@ public class UpdateManager implements IUpdateProxy {
      * @param downloadUrl      下载地址
      * @param downloadListener 下载监听
      */
-    public void download(String downloadUrl, @Nullable OnFileDownloadListener downloadListener) {
-        startDownload(refreshParams(new UpdateEntity().setDownloadUrl(downloadUrl)), downloadListener);
+    public void download(String downloadUrl, String fileName, @Nullable OnFileDownloadListener downloadListener) {
+        startDownload(refreshParams(new UpdateEntity()
+                .setFileName(fileName)
+                .setDownloadUrl(downloadUrl)), downloadListener);
     }
 
     @Override

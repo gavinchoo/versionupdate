@@ -231,6 +231,14 @@ public final class UpdateFacade {
         XUpdate.get().mOnUpdateFailureListener.onFailure(updateError);
     }
 
+    public static String getBundlesRootPath() {
+        return XUpdate.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
+    }
+
+    public static boolean isInstalled(String alias) {
+        return UpdateBundleMgr.get().isInstalled(alias);
+    }
+
     public static boolean canOpenBundle(String alias) {
         return UpdateBundleMgr.get().canOpen(alias);
     }
