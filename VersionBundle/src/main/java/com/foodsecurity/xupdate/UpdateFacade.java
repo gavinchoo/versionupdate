@@ -15,10 +15,12 @@ import com.foodsecurity.xupdate.listener.impl.DefaultBundleInstallListener;
 import com.foodsecurity.xupdate.listener.impl.DefaultApkInstallListener;
 import com.foodsecurity.xupdate.listener.impl.DefaultUpdateFailureListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
+import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateChecker;
 import com.foodsecurity.xupdate.proxy.IUpdateDownloader;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.proxy.IUpdateParser;
+import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
@@ -247,8 +249,10 @@ public final class UpdateFacade {
         UpdateBundleMgr.get().init(updateEntity, promptEntity);
     }
 
-    public static void initUpdateBundle(IUpdateProxy updateProxy) {
-        UpdateBundleMgr.get().setIUpdateProxy(updateProxy);
+    public static void initUpdateBundle(IUpdateProxy updateProxy, IUpdateBundlePrompter updatePrompter) {
+        UpdateBundleMgr.get()
+                .setIUpdateProxy(updateProxy)
+                .setUpdatePrompter(updatePrompter);
     }
 
 }

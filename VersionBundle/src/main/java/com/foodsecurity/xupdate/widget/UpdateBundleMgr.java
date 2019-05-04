@@ -7,6 +7,8 @@ import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.XUpdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
+import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 
@@ -59,6 +61,8 @@ public class UpdateBundleMgr {
      */
     private PromptEntity mPromptEntity;
 
+    private IUpdateBundlePrompter mUpdatePrompter;
+
     public static UpdateBundleMgr get() {
         if (sInstance == null) {
             synchronized (UpdateBundleMgr.class) {
@@ -82,12 +86,19 @@ public class UpdateBundleMgr {
         setUpdateEntity(updateEntity);
     }
 
-    public void setIUpdateProxy(IUpdateProxy updateProxy) {
+    public UpdateBundleMgr setIUpdateProxy(IUpdateProxy updateProxy) {
         this.mIUpdateProxy = updateProxy;
+        return this;
     }
 
-    public void setUpdateEntity(List<UpdateEntity> updateEntity) {
+    public UpdateBundleMgr setUpdatePrompter(IUpdateBundlePrompter updatePrompter) {
+        this.mUpdatePrompter = updatePrompter;
+        return this;
+    }
+
+    public UpdateBundleMgr setUpdateEntity(List<UpdateEntity> updateEntity) {
         this.mUpdateEntity = updateEntity;
+        return this;
     }
 
     public void setPromptEntity(PromptEntity promptEntity) {
@@ -253,12 +264,16 @@ public class UpdateBundleMgr {
 
         @Override
         public void onStart() {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onStart(mIUpdateProxy.getUpdateEntity());
+            }
         }
 
         @Override
         public void onProgress(long total, float progress) {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onProgress(mIUpdateProxy.getUpdateEntity(), progress);
+            }
         }
 
         @Override
@@ -266,12 +281,17 @@ public class UpdateBundleMgr {
             //返回true，自动进行apk安装
             UpdateFacade.startInstallBundle(mIUpdateProxy.getContext(), file);
             removeOldVersionBundle(mIUpdateProxy.getUpdateEntity());
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onCompleted(mIUpdateProxy.getUpdateEntity());
+            }
             return false;
         }
 
         @Override
         public void onError(Throwable throwable) {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onError(mIUpdateProxy.getUpdateEntity(), throwable);
+            }
         }
     };
 }

@@ -186,7 +186,7 @@ public class UpdateManager implements IUpdateProxy {
     @Override
     public void updateBundle() {
         UpdateLog.d("XUpdate.setBundleNewVersion()启动:" + toString());
-        UpdateFacade.initUpdateBundle(this);
+        UpdateFacade.initUpdateBundle(this, mIUpdateBundlePrompter);
         update();
     }
 

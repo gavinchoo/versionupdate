@@ -41,4 +41,24 @@ public class DefaultUpdateBundlePrompter implements IUpdateBundlePrompter {
     @Override
     public void showBundlePrompt(@NonNull List<UpdateEntity> updateEntity, @NonNull IUpdateProxy updateProxy, @NonNull PromptEntity promptEntity) {
     }
+
+    @Override
+    public void onStart(UpdateEntity updateEntity) {
+
+    }
+
+    @Override
+    public void onProgress(UpdateEntity updateEntity, float progress) {
+
+    }
+
+    @Override
+    public void onCompleted(UpdateEntity updateEntity) {
+
+    }
+
+    @Override
+    public void onError(UpdateEntity updateEntity, Throwable throwable) {
+
+    }
 }

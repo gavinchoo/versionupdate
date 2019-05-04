@@ -29,6 +29,9 @@ import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VER
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String BUNDLE_ALIAS_COMMON = "common";
+    public static final String BUNDLE_ALIAS_STATISTICS = "statistics_bundle";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         checkBundlesVersion();
 //        checkMainAppVersion();
 
-        if (!XUpdate.get().isInstalled("common")) {
+        if (!XUpdate.get().isInstalled(BUNDLE_ALIAS_COMMON)) {
             updateBundlesVersion();
         }
 
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 XUpdate.get()
-                        .canOpenBundle("statistics_bundle");
+                        .canOpenBundle(BUNDLE_ALIAS_STATISTICS);
             }
         });
 
@@ -55,15 +58,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (XUpdate.get()
-                        .canOpenBundle("statistics_bundle")) {
+                        .canOpenBundle(BUNDLE_ALIAS_STATISTICS)) {
                     Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
-                    intent.putExtra("bundle", "statistics_bundle");
+                    intent.putExtra("bundle", BUNDLE_ALIAS_STATISTICS);
                     startActivity(intent);
                 }
             }
         });
     }
 
+    /**
+     * 检测主程序版本信息
+     */
     private void checkMainAppVersion() {
         XUpdate.newBuild(this)
                 .param("versionCode", "" + UpdateUtils.getVersionCode(this))
@@ -73,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 .update();
     }
 
+    /**
+     * 检测插件版本信息
+     */
     private void checkBundlesVersion() {
         XUpdate.newBuild(this)
                 .param("versionCode", "" + UpdateUtils.getVersionCode(this))
@@ -84,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
                 .updateBundle();
     }
 
+    /**
+     * 直接下载安装插件
+     */
     private void updateBundlesVersion() {
         String url = "http://192.168.1.101:8000/version/download?filename=common.zip";
         XUpdate.newBuild(this)
@@ -113,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * 插件检测版本信息，下载更新回调
+     */
     public class BundleUpdatePrompter implements IUpdateBundlePrompter {
 
         public BundleUpdatePrompter() {
@@ -123,8 +138,33 @@ public class MainActivity extends AppCompatActivity {
         public void showBundlePrompt(@NonNull List<UpdateEntity> updateEntity, @NonNull IUpdateProxy updateProxy, @NonNull PromptEntity promptEntity) {
             UpdateLog.i("showBundlePrompt");
         }
+
+        @Override
+        public void onStart(UpdateEntity updateEntity) {
+
+        }
+
+        @Override
+        public void onProgress(UpdateEntity updateEntity, float progress) {
+
+        }
+
+        @Override
+        public void onCompleted(UpdateEntity updateEntity) {
+            Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+            intent.putExtra("bundle", updateEntity.getAlias());
+            startActivity(intent);
+        }
+
+        @Override
+        public void onError(UpdateEntity updateEntity, Throwable throwable) {
+
+        }
     }
 
+    /**
+     * 初始化版本更新组件
+     */
     private void initUpdate() {
         XUpdate.get()
                 .debug(true)
