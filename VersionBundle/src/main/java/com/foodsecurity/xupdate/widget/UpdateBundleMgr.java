@@ -7,6 +7,7 @@ import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.XUpdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
@@ -248,12 +249,25 @@ public class UpdateBundleMgr {
                 updateEntity.setVersionName(bundleVersion);
             } else {
                 updateEntity.setAlias(bundle);
+
+                // 文件夹上没有带版本号，检查*.json文件版本号
+                File bundlePath = new File(UpdateFacade.getBundlesRootPath() + File.separator + bundle);
+                File[] bundleFiles = bundlePath.listFiles();
+                if (null != bundleFiles) {
+                    for (int j = 0; j < bundleFiles.length; j++) {
+                        String fileName = bundleFiles[j].getName();
+                        if (fileName.contains(".json")) {
+                            updateEntity.setVersionName(fileName.replace(".json", ""));
+                            break;
+                        }
+                    }
+                }
             }
 
             updateEntity.setFileName(bundle);
             localVersionInfo.add(updateEntity);
         }
-
+        UpdateLog.i("获取本地插件版本信息：" + localVersionInfo.toString());
         return localVersionInfo;
     }
 

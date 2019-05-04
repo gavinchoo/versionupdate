@@ -43,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
 //        checkMainAppVersion();
 
         if (!XUpdate.get().isInstalled(BUNDLE_ALIAS_COMMON)) {
-            updateBundlesVersion();
+            UpdateEntity entity = new UpdateEntity();
+            entity.setDownloadUrl("http://192.168.1.101:8000/version/download?filename=common.zip");
+            entity.setFileName("common.zip");
+            XUpdate.get().updateBundlesVersion(this, entity);
         }
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
@@ -93,37 +96,6 @@ public class MainActivity extends AppCompatActivity {
                 .updateBundle();
     }
 
-    /**
-     * 直接下载安装插件
-     */
-    private void updateBundlesVersion() {
-        String url = "http://192.168.1.101:8000/version/download?filename=common.zip";
-        XUpdate.newBuild(this)
-                .apkCacheDir(UpdateFacade.getBundlesRootPath())
-                .build()
-                .download(url, "common.zip", new OnFileDownloadListener() {
-                    @Override
-                    public void onStart() {
-
-                    }
-
-                    @Override
-                    public void onProgress(long total, float progress) {
-
-                    }
-
-                    @Override
-                    public boolean onCompleted(File file) {
-                        UpdateFacade.startInstallBundle(XUpdate.getContext(), file);
-                        return false;
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-
-                    }
-                });
-    }
 
     /**
      * 插件检测版本信息，下载更新回调

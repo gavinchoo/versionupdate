@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.listener.OnInstallListener;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.listener.impl.DefaultApkInstallListener;
@@ -367,5 +368,9 @@ public class XUpdate {
 
     public boolean isInstalled(String alias) {
         return UpdateFacade.isInstalled(alias);
+    }
+
+    public void updateBundlesVersion(Context context, UpdateEntity entity) {
+        UpdateFacade.updateBundlesVersion(context, entity);
     }
 }

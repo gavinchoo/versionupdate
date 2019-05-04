@@ -351,13 +351,13 @@ public class UpdateManager implements IUpdateProxy {
         } else {
             if (mIUpdateBundlePrompter instanceof DefaultUpdateBundlePrompter) {
                 if (mContext != null && !((Activity) mContext).isFinishing()) {
-                    UpdateFacade.setBundleNewVersion(updateEntity, mPromptEntity);
+                    UpdateFacade.setBundleNewVersion(updateProxy.getContext(), updateEntity, mPromptEntity);
                     mIUpdateBundlePrompter.showBundlePrompt(updateEntity, updateProxy, mPromptEntity);
                 } else {
                     UpdateFacade.onUpdateError(PROMPT_ACTIVITY_DESTROY);
                 }
             } else {
-                UpdateFacade.setBundleNewVersion(updateEntity, mPromptEntity);
+                UpdateFacade.setBundleNewVersion(updateProxy.getContext(), updateEntity, mPromptEntity);
                 mIUpdateBundlePrompter.showBundlePrompt(updateEntity, updateProxy, mPromptEntity);
             }
         }

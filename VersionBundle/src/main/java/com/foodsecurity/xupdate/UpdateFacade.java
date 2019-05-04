@@ -22,6 +22,7 @@ import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.proxy.IUpdateParser;
 import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
+import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
 
@@ -245,8 +246,14 @@ public final class UpdateFacade {
         return UpdateBundleMgr.get().canOpen(alias);
     }
 
-    public static void setBundleNewVersion(List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
+    public static void setBundleNewVersion(Context context, List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
         UpdateBundleMgr.get().init(updateEntity, promptEntity);
+
+        for (int i = 0; i < updateEntity.size(); i++) {
+            if (updateEntity.get(i).isSilent()) {
+                updateBundlesVersion(context, updateEntity.get(i));
+            }
+        }
     }
 
     public static void initUpdateBundle(IUpdateProxy updateProxy, IUpdateBundlePrompter updatePrompter) {
@@ -255,4 +262,38 @@ public final class UpdateFacade {
                 .setUpdatePrompter(updatePrompter);
     }
 
+    public static void updateBundlesVersion(Context context, UpdateEntity entity, OnFileDownloadListener listener) {
+        XUpdate.newBuild(context)
+                .apkCacheDir(UpdateFacade.getBundlesRootPath())
+                .build()
+                .download(entity.getDownloadUrl(), entity.getFileName(), listener);
+    }
+
+    /**
+     * 直接下载安装插件
+     */
+    public static void updateBundlesVersion(Context context, UpdateEntity entity) {
+        updateBundlesVersion(context, entity, new OnFileDownloadListener() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onProgress(long total, float progress) {
+
+            }
+
+            @Override
+            public boolean onCompleted(File file) {
+                UpdateFacade.startInstallBundle(XUpdate.getContext(), file);
+                return false;
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+
+            }
+        });
+    }
 }

@@ -52,6 +52,20 @@ public class VersionEntity {
      */
     private String name;
 
+    /**
+     * 是否自动下载安装
+     */
+    private boolean isSilent;
+
+    public boolean isSilent() {
+        return isSilent;
+    }
+
+    public VersionEntity setSilent(boolean silent) {
+        isSilent = silent;
+        return this;
+    }
+
     public int getUpdateStatus() {
         return updateStatus;
     }
@@ -164,6 +178,7 @@ public class VersionEntity {
                 ", fileName='" + fileName + '\'' +
                 ", alias='" + alias + '\'' +
                 ", fileSize=" + fileSize +
+                ", isSilent=" + isSilent +
                 '}';
     }
 }
