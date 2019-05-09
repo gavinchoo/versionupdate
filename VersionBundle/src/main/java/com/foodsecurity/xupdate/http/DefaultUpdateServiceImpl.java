@@ -17,11 +17,11 @@ import java.util.Map;
  * @author zhujianwei134
  * @since 2018/8/12 上午11:46
  */
-public class DefaultOkhttpUpdateService implements IUpdateHttpService {
+public class DefaultUpdateServiceImpl implements IUpdateHttpService {
 
     private OkhttpClient okhttpClient;
 
-    public DefaultOkhttpUpdateService() {
+    public DefaultUpdateServiceImpl() {
         okhttpClient = new OkhttpClient();
     }
 

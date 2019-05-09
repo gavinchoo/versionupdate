@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.entity.UpdateError;
+import com.foodsecurity.xupdate.entity.UpdateException;
 import com.foodsecurity.xupdate.listener.OnInstallListener;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.listener.impl.DefaultBundleInstallListener;
@@ -20,7 +20,6 @@ import com.foodsecurity.xupdate.proxy.IUpdateChecker;
 import com.foodsecurity.xupdate.proxy.IUpdateDownloader;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.proxy.IUpdateParser;
-import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
@@ -30,7 +29,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * 内部版本更新参数的获取
@@ -56,45 +55,45 @@ public final class UpdateFacade {
     //===========================属性设置===================================//
 
     public static Map<String, String> getParams() {
-        return XUpdate.get().mParams;
+        return Xupdate.get().mParams;
     }
 
     public static IUpdateHttpService getIUpdateHttpService() {
-        return XUpdate.get().mIUpdateHttpService;
+        return Xupdate.get().mIUpdateHttpService;
     }
 
     public static IUpdateChecker getIUpdateChecker() {
-        return XUpdate.get().mIUpdateChecker;
+        return Xupdate.get().mIUpdateChecker;
     }
 
     public static IUpdateParser getIUpdateParser() {
-        return XUpdate.get().mIUpdateParser;
+        return Xupdate.get().mIUpdateParser;
     }
 
     public static IUpdateDownloader getIUpdateDownLoader() {
-        return XUpdate.get().mIUpdateDownloader;
+        return Xupdate.get().mIUpdateDownloader;
     }
 
     public static boolean isGet() {
-        return XUpdate.get().mIsGet;
+        return Xupdate.get().mIsGet;
     }
 
     public static boolean isWifiOnly() {
-        return XUpdate.get().mIsWifiOnly;
+        return Xupdate.get().mIsWifiOnly;
     }
 
     public static boolean isAutoMode() {
-        return XUpdate.get().mIsAutoMode;
+        return Xupdate.get().mIsAutoMode;
     }
 
     public static String getApkCacheDir() {
-        return XUpdate.get().mApkCacheDir;
+        return Xupdate.get().mApkCacheDir;
     }
 
     //===========================apk安装监听===================================//
 
     public static OnInstallListener getOnInstallListener() {
-        return XUpdate.get().mOnApkInstallListener;
+        return Xupdate.get().mOnApkInstallListener;
     }
 
     /**
@@ -157,10 +156,10 @@ public final class UpdateFacade {
      * @param downloadEntity 文件下载信息
      */
     private static boolean onInstallApk(Context context, File apkFile, DownloadEntity downloadEntity) {
-        if (XUpdate.get().mOnApkInstallListener == null) {
-            XUpdate.get().mOnApkInstallListener = new DefaultApkInstallListener();
+        if (Xupdate.get().mOnApkInstallListener == null) {
+            Xupdate.get().mOnApkInstallListener = new DefaultApkInstallListener();
         }
-        return XUpdate.get().mOnApkInstallListener.onInstall(context, apkFile, downloadEntity);
+        return Xupdate.get().mOnApkInstallListener.onInstall(context, apkFile, downloadEntity);
     }
 
     /**
@@ -171,36 +170,36 @@ public final class UpdateFacade {
      * @param downloadEntity 文件下载信息
      */
     private static boolean onInstallBundle(Context context, File apkFile, DownloadEntity downloadEntity) {
-        if (XUpdate.get().mOnBundleInstallListener == null) {
-            XUpdate.get().mOnBundleInstallListener = new DefaultBundleInstallListener();
+        if (Xupdate.get().mOnBundleInstallListener == null) {
+            Xupdate.get().mOnBundleInstallListener = new DefaultBundleInstallListener();
         }
-        return XUpdate.get().mOnBundleInstallListener.onInstall(context, apkFile, downloadEntity);
+        return Xupdate.get().mOnBundleInstallListener.onInstall(context, apkFile, downloadEntity);
     }
 
     /**
      * apk安装完毕
      */
     private static void onApkInstallSuccess() {
-        if (XUpdate.get().mOnApkInstallListener == null) {
-            XUpdate.get().mOnApkInstallListener = new DefaultApkInstallListener();
+        if (Xupdate.get().mOnApkInstallListener == null) {
+            Xupdate.get().mOnApkInstallListener = new DefaultApkInstallListener();
         }
-        XUpdate.get().mOnApkInstallListener.onInstallSuccess();
+        Xupdate.get().mOnApkInstallListener.onInstallSuccess();
     }
 
     /**
      * apk安装完毕
      */
     private static void onBundleInstallSuccess() {
-        if (XUpdate.get().mOnBundleInstallListener == null) {
-            XUpdate.get().mOnBundleInstallListener = new DefaultBundleInstallListener();
+        if (Xupdate.get().mOnBundleInstallListener == null) {
+            Xupdate.get().mOnBundleInstallListener = new DefaultBundleInstallListener();
         }
-        XUpdate.get().mOnBundleInstallListener.onInstallSuccess();
+        Xupdate.get().mOnBundleInstallListener.onInstallSuccess();
     }
 
     //===========================更新出错===================================//
 
     public static OnUpdateFailureListener getOnUpdateFailureListener() {
-        return XUpdate.get().mOnUpdateFailureListener;
+        return Xupdate.get().mOnUpdateFailureListener;
     }
 
     /**
@@ -209,7 +208,7 @@ public final class UpdateFacade {
      * @param errorCode
      */
     public static void onUpdateError(int errorCode) {
-        onUpdateError(new UpdateError(errorCode));
+        onUpdateError(new UpdateException(errorCode));
     }
 
     /**
@@ -219,7 +218,7 @@ public final class UpdateFacade {
      * @param message
      */
     public static void onUpdateError(int errorCode, String message) {
-        onUpdateError(new UpdateError(errorCode, message));
+        onUpdateError(new UpdateException(errorCode, message));
     }
 
     /**
@@ -227,15 +226,15 @@ public final class UpdateFacade {
      *
      * @param updateError
      */
-    public static void onUpdateError(@NonNull UpdateError updateError) {
-        if (XUpdate.get().mOnUpdateFailureListener == null) {
-            XUpdate.get().mOnUpdateFailureListener = new DefaultUpdateFailureListener();
+    public static void onUpdateError(@NonNull UpdateException updateError) {
+        if (Xupdate.get().mOnUpdateFailureListener == null) {
+            Xupdate.get().mOnUpdateFailureListener = new DefaultUpdateFailureListener();
         }
-        XUpdate.get().mOnUpdateFailureListener.onFailure(updateError);
+        Xupdate.get().mOnUpdateFailureListener.onFailure(updateError);
     }
 
     public static String getBundlesRootPath() {
-        return XUpdate.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
+        return Xupdate.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
     }
 
     public static boolean isInstalled(String alias) {
@@ -263,7 +262,7 @@ public final class UpdateFacade {
     }
 
     public static void updateBundlesVersion(Context context, UpdateEntity entity, OnFileDownloadListener listener) {
-        XUpdate.newBuild(context)
+        Xupdate.newBuild(context)
                 .apkCacheDir(UpdateFacade.getBundlesRootPath())
                 .build()
                 .download(entity.getDownloadUrl(), entity.getFileName(), listener);
@@ -286,7 +285,7 @@ public final class UpdateFacade {
 
             @Override
             public boolean onCompleted(File file) {
-                UpdateFacade.startInstallBundle(XUpdate.getContext(), file);
+                UpdateFacade.startInstallBundle(Xupdate.getContext(), file);
                 return false;
             }
 

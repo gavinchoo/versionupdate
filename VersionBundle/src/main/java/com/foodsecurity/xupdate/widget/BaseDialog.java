@@ -62,6 +62,7 @@ public abstract class BaseDialog extends Dialog {
         initListeners();
     }
 
+    @Override
     public <T extends View> T findViewById(@IdRes int id) {
         return mContentView.findViewById(id);
     }
@@ -83,7 +84,8 @@ public abstract class BaseDialog extends Dialog {
      * @param height
      */
     protected BaseDialog setDialogSize(int width, int height) {
-        WindowManager.LayoutParams p = getWindow().getAttributes(); // 获取对话框当前的参数值
+        // 获取对话框当前的参数值
+        WindowManager.LayoutParams p = getWindow().getAttributes();
         p.width = width;
         p.height = height;
         getWindow().setAttributes(p);
@@ -138,7 +140,9 @@ public abstract class BaseDialog extends Dialog {
     private static void hideSoftInput(final View view) {
         InputMethodManager imm =
                 (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
+        if (imm == null) {
+            return;
+        }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

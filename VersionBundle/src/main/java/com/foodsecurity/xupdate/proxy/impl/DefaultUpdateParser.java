@@ -4,7 +4,7 @@ package com.foodsecurity.xupdate.proxy.impl;
 
 import android.text.TextUtils;
 
-import com.foodsecurity.xupdate.XUpdate;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.BundleVersionResult;
 import com.foodsecurity.xupdate.entity.ApkVersionResult;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
@@ -27,7 +27,7 @@ public class DefaultUpdateParser implements IUpdateParser {
     public UpdateEntity parseJson(String json) {
         if (!TextUtils.isEmpty(json)) {
             ApkVersionResult checkResult = UpdateUtils.fromJson(json, ApkVersionResult.class);
-            if (checkResult != null && checkResult.getCode() == 200) {
+            if (checkResult != null && checkResult.isOk()) {
                 VersionEntity versionEntity = doLocalCompare(checkResult.getData());
                 UpdateEntity updateEntity = new UpdateEntity();
                 if (versionEntity.getUpdateStatus() == ApkVersionResult.NO_NEW_VERSION) {
@@ -55,7 +55,7 @@ public class DefaultUpdateParser implements IUpdateParser {
     public List<UpdateEntity> parseBundleJson(String json) throws Exception {
         if (!TextUtils.isEmpty(json)) {
             BundleVersionResult checkResult = UpdateUtils.fromJson(json, BundleVersionResult.class);
-            if (checkResult != null && checkResult.getCode() == 200) {
+            if (checkResult != null && checkResult.isOk()) {
                 List<VersionEntity> versionEntities = checkResult.getData();
                 if (null != versionEntities && versionEntities.size() > 0) {
                     List<UpdateEntity> updateEntities = new ArrayList<>();
@@ -100,7 +100,7 @@ public class DefaultUpdateParser implements IUpdateParser {
         if (checkResult.getUpdateStatus() != ApkVersionResult.NO_NEW_VERSION) {
             //服务端返回需要更新
             int lastVersionCode = Integer.parseInt(checkResult.getVersionCode());
-            if (lastVersionCode <= UpdateUtils.getVersionCode(XUpdate.getContext())) {
+            if (lastVersionCode <= UpdateUtils.getVersionCode(Xupdate.getContext())) {
                 //最新版本小于等于现在的版本，不需要更新
                 checkResult.setRequireUpgrade(ApkVersionResult.NO_NEW_VERSION);
             }

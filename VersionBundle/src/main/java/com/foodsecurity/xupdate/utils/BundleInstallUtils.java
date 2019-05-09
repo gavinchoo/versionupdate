@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.foodsecurity.xupdate.logs.UpdateLog;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,11 +17,11 @@ import java.io.InputStream;
  */
 public class BundleInstallUtils {
 
-    public static boolean install(@NonNull File bundleFile){
+    public static boolean install(@NonNull File bundleFile) {
         try {
             ZipUtils.unZipFolder(bundleFile.getPath(), bundleFile.getParent());
             return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -34,9 +36,11 @@ public class BundleInstallUtils {
     public static void copyAssetsDir2Phone(Activity activity, String filePath) {
         try {
             String[] fileList = activity.getAssets().list(filePath);
-            if (fileList.length > 0) {//如果是目录
+            if (fileList.length > 0) {
+                //如果是目录
                 File file = new File(activity.getFilesDir().getAbsolutePath() + File.separator + filePath);
-                file.mkdirs();//如果文件夹不存在，则递归
+                file.mkdirs();
+                //如果文件夹不存在，则递归
                 for (String fileName : fileList) {
                     filePath = filePath + File.separator + fileName;
 
@@ -45,7 +49,8 @@ public class BundleInstallUtils {
                     filePath = filePath.substring(0, filePath.lastIndexOf(File.separator));
                     Log.e("oldPath", filePath);
                 }
-            } else {//如果是文件
+            } else {
+                //如果是文件
                 InputStream inputStream = activity.getAssets().open(filePath);
                 File file = new File(activity.getFilesDir().getAbsolutePath() + File.separator + filePath);
                 Log.i("copyAssets2Phone", "file:" + file);
@@ -59,9 +64,9 @@ public class BundleInstallUtils {
                     fos.flush();
                     inputStream.close();
                     fos.close();
-                    Log.d("zjw", "模型文件复制完毕");
+                    UpdateLog.d("模型文件复制完毕");
                 } else {
-                    Log.d("zjw", "模型文件已存在，无需复制");
+                    UpdateLog.d("模型文件已存在，无需复制");
                 }
             }
         } catch (IOException e) {

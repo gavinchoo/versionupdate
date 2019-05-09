@@ -15,13 +15,13 @@ import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_APK_CACHE_DIR_EMPTY;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_IGNORED_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_JSON_EMPTY;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NET_REQUEST;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_PARSE;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_UPDATING;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_APK_CACHE_DIR_EMPTY;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_IGNORED_VERSION;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_JSON_EMPTY;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NET_REQUEST;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_PARSE;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_UPDATING;
 
 /**
  * 默认版本更新检查者

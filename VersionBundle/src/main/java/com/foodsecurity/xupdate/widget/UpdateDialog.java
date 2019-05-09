@@ -203,9 +203,6 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
         if (themeColor == -1) {
             themeColor = ColorUtils.getColor(getContext(), R.color.xupdate_default_theme_color);
         }
-        if (topResId == -1) {
-            topResId = R.drawable.xupdate_bg_app_top;
-        }
         setDialogTheme(themeColor, topResId);
     }
 
@@ -217,8 +214,8 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
      */
     private void setDialogTheme(int color, int topResId) {
         mIvTop.setImageResource(topResId);
-        mBtnUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getContext()), color));
-        mBtnBackgroundUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getContext()), color));
+        mBtnUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getContext()), color));
+        mBtnBackgroundUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getContext()), color));
         mNumberProgressBar.setProgressTextColor(color);
         mNumberProgressBar.setReachedBarColor(color);
         //随背景颜色变化

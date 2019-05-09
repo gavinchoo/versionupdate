@@ -66,8 +66,16 @@ public interface IUpdateProxy {
      */
     void onAfterCheck();
 
+    /**
+     * 设置更新实体
+     * @param entity
+     */
     void setUpdateEntity(UpdateEntity entity);
 
+    /**
+     * 获取更新实体
+     * @return
+     */
     UpdateEntity getUpdateEntity();
 
     /**
@@ -75,6 +83,7 @@ public interface IUpdateProxy {
      *
      * @param json
      * @return
+     * @throws Exception
      */
     UpdateEntity parseJson(@NonNull String json) throws Exception;
 
@@ -83,6 +92,7 @@ public interface IUpdateProxy {
      *
      * @param json
      * @return
+     * @throws Exception
      */
     List<UpdateEntity> parseBundleJson(@NonNull String json) throws Exception;
 

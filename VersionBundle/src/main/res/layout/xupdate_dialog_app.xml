@@ -20,9 +20,9 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/ll_top"
-        android:layout_width="330dp"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
@@ -32,8 +32,10 @@
             android:layout_height="wrap_content" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="330dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:background="@drawable/xupdate_bg_app_info"
             android:orientation="vertical"
@@ -110,6 +112,7 @@
             android:id="@+id/ll_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -119,7 +122,7 @@
                 android:layout_width="1dp"
                 android:layout_height="50dp"
                 android:background="#d8d8d8"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/iv_close"
@@ -127,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/xupdate_icon_app_close" />
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </LinearLayout>

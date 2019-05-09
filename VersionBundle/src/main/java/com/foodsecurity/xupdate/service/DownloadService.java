@@ -18,7 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.R;
-import com.foodsecurity.xupdate.XUpdate;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
@@ -29,7 +29,7 @@ import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.DOWNLOAD_FAILED;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED;
 
 /**
  * APK下载服务
@@ -57,9 +57,9 @@ public class DownloadService extends Service {
      * @param connection
      */
     public static void bindService(ServiceConnection connection) {
-        Intent intent = new Intent(XUpdate.getContext(), DownloadService.class);
-        XUpdate.getContext().startService(intent);
-        XUpdate.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(Xupdate.getContext(), DownloadService.class);
+        Xupdate.getContext().startService(intent);
+        Xupdate.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
         mIsRunning = true;
     }
 
@@ -143,15 +143,6 @@ public class DownloadService extends Service {
     private void initNotification() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
-            //设置绕过免打扰模式
-//            channel.setBypassDnd(false);
-//            //检测是否绕过免打扰模式
-//            channel.canBypassDnd();
-//            //设置在锁屏界面上显示这条通知
-//            channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
-//            channel.setLightColor(Color.GREEN);
-//            channel.setShowBadge(true);
-//            channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             channel.enableVibration(false);
             channel.enableLights(false);
 

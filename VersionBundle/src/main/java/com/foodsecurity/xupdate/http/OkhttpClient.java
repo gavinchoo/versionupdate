@@ -46,9 +46,9 @@ public class OkhttpClient {
     public OkhttpClient() {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{UnSafeTrustManager}, null);
+            sslContext.init(null, new TrustManager[]{x509TrustManager}, null);
             okHttpClient = new OkHttpClient.Builder()
-                    .sslSocketFactory(sslContext.getSocketFactory(), UnSafeTrustManager)
+                    .sslSocketFactory(sslContext.getSocketFactory(), x509TrustManager)
                     .connectTimeout(15, TimeUnit.SECONDS)
                     .readTimeout(45, TimeUnit.SECONDS)
                     .build();
@@ -252,23 +252,35 @@ public class OkhttpClient {
     };
 
     public interface DownloadProgressCallBack {
-        public void onStart();
+        /**
+         * 开始下载
+         */
+        void onStart();
 
-        public void onError(IOException e);
+        /**
+         * 下载异常失败
+         * @param e
+         */
+        void onError(IOException e);
 
-        public void update(long totalSize, int progress);
+        /**
+         * 下载中进度更新
+         * @param totalSize
+         * @param progress
+         */
+        void update(long totalSize, int progress);
 
-        public void onComplete(File downloadFile);
+        void onComplete(File downloadFile);
     }
 
     public interface SimpleCallBack {
 
-        public void onError(IOException e);
+        void onError(IOException e);
 
-        public void onSuccess(String response);
+        void onSuccess(String response);
     }
 
-    private X509TrustManager UnSafeTrustManager = new X509TrustManager() {
+    private X509TrustManager x509TrustManager = new X509TrustManager() {
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 

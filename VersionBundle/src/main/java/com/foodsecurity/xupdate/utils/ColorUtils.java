@@ -7,6 +7,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.v4.content.ContextCompat;
 
 import java.util.Random;
 
@@ -96,7 +97,7 @@ public final class ColorUtils {
      * @return
      */
     public static int getColor(Context context, @ColorRes int resId) {
-        return context.getResources().getColor(resId);
+        return ContextCompat.getColor(context, resId);
     }
 
     /**
@@ -129,8 +130,12 @@ public final class ColorUtils {
         }
 
         public void setAlpha(int alpha) {
-            if (alpha > 255) alpha = 255;
-            if (alpha < 0) alpha = 0;
+            if (alpha > 255) {
+                alpha = 255;
+            }
+            if (alpha < 0) {
+                alpha = 0;
+            }
             this.alpha = alpha;
         }
 
@@ -139,7 +144,9 @@ public final class ColorUtils {
         }
 
         void setLower(int lower) {
-            if (lower < 0) lower = 0;
+            if (lower < 0) {
+                lower = 0;
+            }
             this.lower = lower;
         }
 
@@ -148,7 +155,9 @@ public final class ColorUtils {
         }
 
         void setUpper(int upper) {
-            if (upper > 255) upper = 255;
+            if (upper > 255) {
+                upper = 255;
+            }
             this.upper = upper;
         }
     }

@@ -8,7 +8,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.foodsecurity.xupdate.XUpdate;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.proxy.IUpdateDownloader;
 import com.foodsecurity.xupdate.service.DownloadService;
@@ -67,7 +67,7 @@ public class DefaultUpdateDownloader implements IUpdateDownloader {
             mDownloadBinder.stop("取消下载");
         }
         if (mIsBound && mServiceConnection != null) {
-            XUpdate.getContext().unbindService(mServiceConnection);
+            Xupdate.getContext().unbindService(mServiceConnection);
             mIsBound = false;
         }
     }

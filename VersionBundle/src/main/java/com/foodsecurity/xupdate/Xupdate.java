@@ -31,10 +31,10 @@ import java.util.TreeMap;
  * @author zhujianwei134
  * @date 2019/4/28
  */
-public class XUpdate {
+public class Xupdate {
 
     private Application mContext;
-    private static XUpdate sInstance;
+    private static Xupdate sInstance;
 
     //========全局属性==========//
     /**
@@ -88,7 +88,7 @@ public class XUpdate {
 
     //===========================初始化===================================//
 
-    private XUpdate() {
+    private Xupdate() {
         mIsGet = false;
         mIsWifiOnly = true;
         mIsAutoMode = false;
@@ -107,11 +107,11 @@ public class XUpdate {
      *
      * @return 版本更新的入口
      */
-    public static XUpdate get() {
+    public static Xupdate get() {
         if (sInstance == null) {
-            synchronized (XUpdate.class) {
+            synchronized (Xupdate.class) {
                 if (sInstance == null) {
-                    sInstance = new XUpdate();
+                    sInstance = new Xupdate();
                 }
             }
         }
@@ -134,7 +134,7 @@ public class XUpdate {
 
     private void testInitialize() {
         if (mContext == null) {
-            throw new ExceptionInInitializerError("请先在全局Application中调用 XUpdate.get().init() 初始化！");
+            throw new ExceptionInInitializerError("请先在全局Application中调用 Xupdate.get().init() 初始化！");
         }
     }
 
@@ -175,7 +175,7 @@ public class XUpdate {
      * @param value
      * @return
      */
-    public XUpdate param(@NonNull String key, @NonNull String value) {
+    public Xupdate param(@NonNull String key, @NonNull String value) {
         if (mParams == null) {
             mParams = new TreeMap<>();
         }
@@ -190,7 +190,7 @@ public class XUpdate {
      * @param params
      * @return
      */
-    public XUpdate params(@NonNull Map<String, String> params) {
+    public Xupdate params(@NonNull Map<String, String> params) {
         logForParams(params);
         mParams = params;
         return this;
@@ -216,7 +216,7 @@ public class XUpdate {
      * @param updateHttpService
      * @return
      */
-    public XUpdate setIUpdateHttpService(@NonNull IUpdateHttpService updateHttpService) {
+    public Xupdate setIUpdateHttpService(@NonNull IUpdateHttpService updateHttpService) {
         UpdateLog.d("设置全局更新网络请求服务:" + updateHttpService.getClass().getCanonicalName());
         mIUpdateHttpService = updateHttpService;
         return this;
@@ -228,7 +228,7 @@ public class XUpdate {
      * @param updateChecker
      * @return
      */
-    public XUpdate setIUpdateChecker(@NonNull IUpdateChecker updateChecker) {
+    public Xupdate setIUpdateChecker(@NonNull IUpdateChecker updateChecker) {
         mIUpdateChecker = updateChecker;
         return this;
     }
@@ -239,7 +239,7 @@ public class XUpdate {
      * @param updateParser
      * @return
      */
-    public XUpdate setIUpdateParser(@NonNull IUpdateParser updateParser) {
+    public Xupdate setIUpdateParser(@NonNull IUpdateParser updateParser) {
         mIUpdateParser = updateParser;
         return this;
     }
@@ -250,7 +250,7 @@ public class XUpdate {
      * @param updateDownLoader
      * @return
      */
-    public XUpdate setIUpdateDownLoader(@NonNull IUpdateDownloader updateDownLoader) {
+    public Xupdate setIUpdateDownLoader(@NonNull IUpdateDownloader updateDownLoader) {
         mIUpdateDownloader = updateDownLoader;
         return this;
     }
@@ -261,7 +261,7 @@ public class XUpdate {
      * @param isGet
      * @return
      */
-    public XUpdate isGet(boolean isGet) {
+    public Xupdate isGet(boolean isGet) {
         UpdateLog.d("设置全局是否使用的是Get请求:" + isGet);
         mIsGet = isGet;
         return this;
@@ -273,7 +273,7 @@ public class XUpdate {
      * @param isWifiOnly
      * @return
      */
-    public XUpdate isWifiOnly(boolean isWifiOnly) {
+    public Xupdate isWifiOnly(boolean isWifiOnly) {
         UpdateLog.d("设置全局是否只在wifi下进行版本更新检查:" + isWifiOnly);
         mIsWifiOnly = isWifiOnly;
         return this;
@@ -285,7 +285,7 @@ public class XUpdate {
      * @param isAutoMode
      * @return
      */
-    public XUpdate isAutoMode(boolean isAutoMode) {
+    public Xupdate isAutoMode(boolean isAutoMode) {
         UpdateLog.d("设置全局是否是自动版本更新模式:" + isAutoMode);
         mIsAutoMode = isAutoMode;
         return this;
@@ -297,7 +297,7 @@ public class XUpdate {
      * @param apkCacheDir
      * @return
      */
-    public XUpdate setApkCacheDir(String apkCacheDir) {
+    public Xupdate setApkCacheDir(String apkCacheDir) {
         UpdateLog.d("设置全局apk的缓存路径:" + apkCacheDir);
         mApkCacheDir = apkCacheDir;
         return this;
@@ -309,7 +309,7 @@ public class XUpdate {
      * @param isDebug
      * @return
      */
-    public XUpdate debug(boolean isDebug) {
+    public Xupdate debug(boolean isDebug) {
         UpdateLog.debug(isDebug);
         return this;
     }
@@ -320,7 +320,7 @@ public class XUpdate {
      * @param logger
      * @return
      */
-    public XUpdate setILogger(@NonNull ILogger logger) {
+    public Xupdate setILogger(@NonNull ILogger logger) {
         UpdateLog.setLogger(logger);
         return this;
     }
@@ -333,7 +333,7 @@ public class XUpdate {
      * @param onInstallListener
      * @return
      */
-    public XUpdate setOnInstallListener(OnInstallListener onInstallListener) {
+    public Xupdate setOnInstallListener(OnInstallListener onInstallListener) {
         mOnApkInstallListener = onInstallListener;
         return this;
     }
@@ -344,7 +344,7 @@ public class XUpdate {
      * @param onInstallListener
      * @return
      */
-    public XUpdate setOnBundleInstallListener(OnInstallListener onInstallListener) {
+    public Xupdate setOnBundleInstallListener(OnInstallListener onInstallListener) {
         mOnBundleInstallListener = onInstallListener;
         return this;
     }
@@ -357,7 +357,7 @@ public class XUpdate {
      * @param onUpdateFailureListener
      * @return
      */
-    public XUpdate setOnUpdateFailureListener(@NonNull OnUpdateFailureListener onUpdateFailureListener) {
+    public Xupdate setOnUpdateFailureListener(@NonNull OnUpdateFailureListener onUpdateFailureListener) {
         mOnUpdateFailureListener = onUpdateFailureListener;
         return this;
     }

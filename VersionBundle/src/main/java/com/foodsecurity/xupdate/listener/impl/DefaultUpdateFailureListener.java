@@ -2,7 +2,7 @@
 
 package com.foodsecurity.xupdate.listener.impl;
 
-import com.foodsecurity.xupdate.entity.UpdateError;
+import com.foodsecurity.xupdate.entity.UpdateException;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 
@@ -15,7 +15,7 @@ import com.foodsecurity.xupdate.logs.UpdateLog;
 public class DefaultUpdateFailureListener implements OnUpdateFailureListener {
 
     @Override
-    public void onFailure(UpdateError error) {
+    public void onFailure(UpdateException error) {
         UpdateLog.e(error);
     }
 }

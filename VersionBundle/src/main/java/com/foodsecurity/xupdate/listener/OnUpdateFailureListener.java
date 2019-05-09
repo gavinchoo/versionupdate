@@ -3,7 +3,7 @@
 package com.foodsecurity.xupdate.listener;
 
 
-import com.foodsecurity.xupdate.entity.UpdateError;
+import com.foodsecurity.xupdate.entity.UpdateException;
 
 /**
  * 更新失败监听
@@ -17,5 +17,5 @@ public interface OnUpdateFailureListener {
      *
      * @param error 错误
      */
-    void onFailure(UpdateError error);
+    void onFailure(UpdateException error);
 }

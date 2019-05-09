@@ -4,12 +4,10 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
-import com.foodsecurity.xupdate.XUpdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
-import com.foodsecurity.xupdate.proxy.IUpdatePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 

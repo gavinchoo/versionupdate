@@ -40,8 +40,8 @@ import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.DOWNLOAD_PERMISSION_DENIED;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.PROMPT_UNKNOWN;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_PERMISSION_DENIED;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.PROMPT_UNKNOWN;
 
 /**
  * 版本更新提示器【DialogFragment实现】
@@ -275,8 +275,8 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         } else {
             mIvTop.setImageResource(topResId);
         }
-        mBtnUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
-        mBtnBackgroundUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
+        mBtnUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
+        mBtnBackgroundUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
         mNumberProgressBar.setProgressTextColor(color);
         mNumberProgressBar.setReachedBarColor(color);
         //随背景颜色变化

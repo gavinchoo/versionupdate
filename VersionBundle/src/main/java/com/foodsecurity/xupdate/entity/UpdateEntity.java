@@ -183,9 +183,12 @@ public class UpdateEntity implements Parcelable {
      */
     public void setIsAutoMode(boolean isAutoMode) {
         if (isAutoMode) {
-            mIsSilent = true;  //自动下载
-            mIsAutoInstall = true; //自动安装
-            mDownloadEntity.setShowNotification(true); //自动模式下，默认下载进度条在通知栏显示
+            //自动下载
+            mIsSilent = true;
+            //自动安装
+            mIsAutoInstall = true;
+            //自动模式下，默认下载进度条在通知栏显示
+            mDownloadEntity.setShowNotification(true);
         }
     }
 

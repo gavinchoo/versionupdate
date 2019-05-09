@@ -44,4 +44,8 @@ public class BundleVersionResult {
     public List<VersionEntity> getData() {
         return data;
     }
+
+    public boolean isOk(){
+        return 200 == code;
+    }
 }

@@ -13,7 +13,7 @@ import com.foodsecurity.xupdate.utils.BundleInstallUtils;
 
 import java.io.File;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * 默认的插件Bundle安装监听

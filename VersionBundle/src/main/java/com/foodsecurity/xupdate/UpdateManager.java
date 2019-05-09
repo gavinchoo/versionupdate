@@ -13,7 +13,7 @@ import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.http.DefaultOkhttpUpdateService;
+import com.foodsecurity.xupdate.http.DefaultUpdateServiceImpl;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateChecker;
@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NETWORK;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_WIFI;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.PROMPT_ACTIVITY_DESTROY;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NETWORK;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_WIFI;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.PROMPT_ACTIVITY_DESTROY;
 
 /**
  * 版本更新管理者
@@ -165,7 +165,7 @@ public class UpdateManager implements IUpdateProxy {
     @Override
     public IUpdateHttpService getIUpdateHttpService() {
         if (null == mIUpdateHttpService) {
-            mIUpdateHttpService = new DefaultOkhttpUpdateService();
+            mIUpdateHttpService = new DefaultUpdateServiceImpl();
         }
         return mIUpdateHttpService;
     }
@@ -175,7 +175,7 @@ public class UpdateManager implements IUpdateProxy {
      */
     @Override
     public void update() {
-        UpdateLog.d("XUpdate.update()启动:" + toString());
+        UpdateLog.d("Xupdate.update()启动:" + toString());
         if (mIUpdateProxy != null) {
             mIUpdateProxy.update();
         } else {
@@ -185,7 +185,7 @@ public class UpdateManager implements IUpdateProxy {
 
     @Override
     public void updateBundle() {
-        UpdateLog.d("XUpdate.setBundleNewVersion()启动:" + toString());
+        UpdateLog.d("Xupdate.setBundleNewVersion()启动:" + toString());
         UpdateFacade.initUpdateBundle(this, mIUpdateBundlePrompter);
         update();
     }
@@ -429,7 +429,7 @@ public class UpdateManager implements IUpdateProxy {
      * 版本更新管理构建者
      */
     public static class Builder {
-        //=======必填项========//
+        /**  */
         Context context;
         /**
          * 版本更新的url地址
@@ -770,7 +770,7 @@ public class UpdateManager implements IUpdateProxy {
 
     @Override
     public String toString() {
-        return "XUpdate{" +
+        return "Xupdate{" +
                 "mUpdateUrl='" + mUpdateUrl + '\'' +
                 ", mParams=" + mParams +
                 ", mApkCacheDir='" + mApkCacheDir + '\'' +
