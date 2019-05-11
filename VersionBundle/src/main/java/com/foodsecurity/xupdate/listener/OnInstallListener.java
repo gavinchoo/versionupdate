@@ -19,9 +19,10 @@ public interface OnInstallListener {
 
     /**
      * 开始安装apk的监听
-     *
-     * @param apkFile        安装的apk文件
-     * @param downloadEntity 文件下载信息
+     * @param context
+     * @param apkFile          安装的apk文件
+     * @param downloadEntity   文件下载信息
+     * @return
      */
     boolean onInstall(@NonNull Context context, @NonNull File apkFile, @NonNull DownloadEntity downloadEntity);
 

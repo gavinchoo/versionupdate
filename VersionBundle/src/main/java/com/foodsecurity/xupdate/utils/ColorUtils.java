@@ -104,6 +104,9 @@ public final class ColorUtils {
      * 随机颜色
      */
     public static class RandomColor {
+
+        private static final int BLOCK = 255;
+
         int alpha;
         int lower;
         int upper;
@@ -130,8 +133,8 @@ public final class ColorUtils {
         }
 
         public void setAlpha(int alpha) {
-            if (alpha > 255) {
-                alpha = 255;
+            if (alpha > BLOCK) {
+                alpha = BLOCK;
             }
             if (alpha < 0) {
                 alpha = 0;
@@ -155,8 +158,8 @@ public final class ColorUtils {
         }
 
         void setUpper(int upper) {
-            if (upper > 255) {
-                upper = 255;
+            if (upper > BLOCK) {
+                upper = BLOCK;
             }
             this.upper = upper;
         }

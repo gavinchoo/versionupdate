@@ -150,83 +150,101 @@ public class OkhttpClient {
                 .build();
         call = okHttpClient.newCall(request);
         //异步请求
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, final IOException e) {
-                // 下载失败监听回调
-                if (e != null) {
-                    e.printStackTrace();
-                }
-                mHander.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressCallBack.onError(e);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-
-                InputStream is = null;
-                byte[] buf = new byte[2048];
-                int len = 0;
-                FileOutputStream fos = null;
-
-                //储存下载文件的目录
-                File dir = new File(destFileDir);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-
-                mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
-
-                downloadFile = new File(dir, destFileName);
-                try {
-                    is = response.body().byteStream();
-                    long totalSize = fileSize;
-                    long total = response.body().contentLength();
-                    if (total != 0) {
-                        totalSize = total;
-                    }
-                    fos = new FileOutputStream(downloadFile);
-                    long sum = 0;
-                    int curProgress = 0;
-                    while ((len = is.read(buf)) != -1) {
-                        fos.write(buf, 0, len);
-                        sum += len;
-                        int progress = (int) (sum * 1.0f / totalSize * 100);
-
-                        if (progress > curProgress) {
-                            curProgress = progress;
-                            //下载中更新进度条
-                            Message msg = new Message();
-                            msg.what = DOWNLOAD_STATUS_PROGRESS;
-                            msg.arg1 = curProgress;
-                            msg.obj = totalSize;
-                            mHander.sendMessage(msg);
-                        }
-                    }
-                    fos.flush();
-                    //下载完成
-                    mHander.sendEmptyMessage(DOWNLOAD_STATUS_COMPLETE);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    mHander.sendEmptyMessage(DOWNLOAD_STATUS_FAIL);
-                } finally {
-                    try {
-                        if (is != null) {
-                            is.close();
-                        }
-                        if (fos != null) {
-                            fos.close();
-                        }
-                    } catch (IOException e) {
-                    }
-                }
-            }
-        });
+        call.enqueue(new DownloadCallback(destFileDir, destFileName, fileSize));
     }
+
+    private class DownloadCallback implements Callback {
+
+        private String destFileDir;
+        private String destFileName;
+        private long fileSize;
+
+        public DownloadCallback(String destFileDir, String destFileName, long fileSize) {
+            this.destFileDir = destFileDir;
+            this.destFileName = destFileName;
+            this.fileSize = fileSize;
+        }
+
+        @Override
+        public void onFailure(Call call, final IOException e) {
+            // 下载失败监听回调
+            if (e != null) {
+                e.printStackTrace();
+            }
+            mHander.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressCallBack.onError(e);
+                }
+            });
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) {
+
+            InputStream is = null;
+            byte[] buf = new byte[2048];
+            int len = 0;
+            FileOutputStream fos = null;
+
+            //储存下载文件的目录
+            File dir = createDownloadDirs(destFileDir);
+
+            mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
+            downloadFile = new File(dir, destFileName);
+            try {
+                is = response.body().byteStream();
+                long totalSize = fileSize;
+                long total = response.body().contentLength();
+                if (total != 0) {
+                    totalSize = total;
+                }
+                fos = new FileOutputStream(downloadFile);
+                long sum = 0;
+                int curProgress = 0;
+                while ((len = is.read(buf)) != -1) {
+                    fos.write(buf, 0, len);
+                    sum += len;
+                    int progress = (int) (sum * 1.0f / totalSize * 100);
+
+                    if (progress > curProgress) {
+                        curProgress = progress;
+                        //下载中更新进度条
+                        Message msg = new Message();
+                        msg.what = DOWNLOAD_STATUS_PROGRESS;
+                        msg.arg1 = curProgress;
+                        msg.obj = totalSize;
+                        mHander.sendMessage(msg);
+                    }
+                }
+                fos.flush();
+                //下载完成
+                mHander.sendEmptyMessage(DOWNLOAD_STATUS_COMPLETE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                mHander.sendEmptyMessage(DOWNLOAD_STATUS_FAIL);
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        private File createDownloadDirs(String dirs) {
+            File dir = new File(dirs);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            return dir;
+        }
+    }
+
 
     private Handler mHander = new Handler() {
         @Override
@@ -259,24 +277,40 @@ public class OkhttpClient {
 
         /**
          * 下载异常失败
+         *
          * @param e
          */
         void onError(IOException e);
 
         /**
          * 下载中进度更新
+         *
          * @param totalSize
          * @param progress
          */
         void update(long totalSize, int progress);
 
+        /**
+         * 文件下载完成
+         *
+         * @param downloadFile 下载的本地文件
+         */
         void onComplete(File downloadFile);
     }
 
     public interface SimpleCallBack {
-
+        /**
+         * 请求异常
+         *
+         * @param e
+         */
         void onError(IOException e);
 
+        /**
+         * 请求成功
+         *
+         * @param response
+         */
         void onSuccess(String response);
     }
 

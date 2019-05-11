@@ -36,6 +36,10 @@ import java.util.List;
  */
 public final class UpdateUtils {
 
+    private static final int KB = 1024;
+    private static final int MB = 1048576;
+    private static final int GB = 1073741824;
+
     private static final String IGNORE_VERSION = "xupdate_ignore_version";
     private static final String PREFS_FILE = "xupdate_prefs";
 
@@ -167,7 +171,7 @@ public final class UpdateUtils {
     public static String toJson(Object src) {
         return new Gson().toJson(src);
     }
-    
+
     public static int dip2px(int dip, Context context) {
         return (int) (dip * getDensity(context) + 0.5f);
     }
@@ -269,14 +273,14 @@ public final class UpdateUtils {
     private static String byte2FitMemorySize(final long byteNum) {
         if (byteNum <= 0) {
             return "";
-        } else if (byteNum < 1024) {
+        } else if (byteNum < KB) {
             return String.format("%.1fB", (double) byteNum);
-        } else if (byteNum < 1048576) {
-            return String.format("%.1fKB", (double) byteNum / 1024);
-        } else if (byteNum < 1073741824) {
-            return String.format("%.1fMB", (double) byteNum / 1048576);
+        } else if (byteNum < MB) {
+            return String.format("%.1fKB", (double) byteNum / KB);
+        } else if (byteNum < GB) {
+            return String.format("%.1fMB", (double) byteNum / MB);
         } else {
-            return String.format("%.1fGB", (double) byteNum / 1073741824);
+            return String.format("%.1fGB", (double) byteNum / GB);
         }
     }
 

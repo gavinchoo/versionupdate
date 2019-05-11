@@ -7,30 +7,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.foodsecurity.xupdate.UpdateFacade;
-import com.foodsecurity.xupdate.XUpdate;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.entity.UpdateError;
+import com.foodsecurity.xupdate.entity.UpdateException;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.proxy.impl.BundleUpdateChecker;
-import com.foodsecurity.xupdate.service.OnFileDownloadListener;
-import com.foodsecurity.xupdate.utils.BundleInstallUtils;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 import com.pingan.foodsecurity.bundle.version.R;
 
-import java.io.File;
 import java.util.List;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String BUNDLE_ALIAS_COMMON = "common";
     public static final String BUNDLE_ALIAS_STATISTICS = "statistics_bundle";
+
+    private String baseUrl = "http://192.168.23.173:8000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +38,19 @@ public class MainActivity extends AppCompatActivity {
         initUpdate();
 
         checkBundlesVersion();
-//        checkMainAppVersion();
+        checkMainAppVersion();
 
-        if (!XUpdate.get().isInstalled(BUNDLE_ALIAS_COMMON)) {
+        if (!Xupdate.get().isInstalled(BUNDLE_ALIAS_COMMON)) {
             UpdateEntity entity = new UpdateEntity();
-            entity.setDownloadUrl("http://192.168.1.101:8000/version/download?filename=common.zip");
+            entity.setDownloadUrl(baseUrl + "/version/download?filename=common.zip");
             entity.setFileName("common.zip");
-            XUpdate.get().updateBundlesVersion(this, entity);
+            Xupdate.get().updateBundlesVersion(this, entity);
         }
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                XUpdate.get()
+                Xupdate.get()
                         .canOpenBundle(BUNDLE_ALIAS_STATISTICS);
             }
         });
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.open_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (XUpdate.get()
+                if (Xupdate.get()
                         .canOpenBundle(BUNDLE_ALIAS_STATISTICS)) {
                     Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
                     intent.putExtra("bundle", BUNDLE_ALIAS_STATISTICS);
@@ -74,11 +72,11 @@ public class MainActivity extends AppCompatActivity {
      * 检测主程序版本信息
      */
     private void checkMainAppVersion() {
-        XUpdate.newBuild(this)
+        Xupdate.newBuild(this)
                 .param("versionCode", "" + UpdateUtils.getVersionCode(this))
                 .param("appKey", getPackageName())
                 .supportBackgroundUpdate(true)
-                .updateUrl("http://192.168.1.101:8000/version/queryversion")
+                .updateUrl(baseUrl + "/version/queryversion")
                 .update();
     }
 
@@ -86,13 +84,13 @@ public class MainActivity extends AppCompatActivity {
      * 检测插件版本信息
      */
     private void checkBundlesVersion() {
-        XUpdate.newBuild(this)
+        Xupdate.newBuild(this)
                 .param("versionCode", "" + UpdateUtils.getVersionCode(this))
                 .param("appKey", getPackageName())
                 .param("bundles", "all")
                 .updateBundlePrompter(new BundleUpdatePrompter())
                 .updateChecker(new BundleUpdateChecker())
-                .updateUrl("http://192.168.1.101:8000/version/querybundleversion")
+                .updateUrl(baseUrl + "/version/querybundleversion")
                 .updateBundle();
     }
 
@@ -138,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
      * 初始化版本更新组件
      */
     private void initUpdate() {
-        XUpdate.get()
+        Xupdate.get()
                 .debug(true)
                 .isWifiOnly(true)     //默认设置只在wifi下检查版本更新
                 .isGet(false)          //默认设置使用get请求检查版本
@@ -147,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                 .param("appKey", getPackageName())
                 .setOnUpdateFailureListener(new OnUpdateFailureListener() { //设置版本更新出错的监听
                     @Override
-                    public void onFailure(UpdateError error) {
+                    public void onFailure(UpdateException error) {
                         if (error.getCode() != CHECK_NO_NEW_VERSION) { //对不同错误进行处理
                             Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
                         }
