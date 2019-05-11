@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
 
 /**
  * 简单的版本更新代理

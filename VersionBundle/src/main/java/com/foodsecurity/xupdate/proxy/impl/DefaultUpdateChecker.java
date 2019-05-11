@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.proxy.IUpdateChecker;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
@@ -15,13 +16,12 @@ import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_APK_CACHE_DIR_EMPTY;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_IGNORED_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_JSON_EMPTY;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NET_REQUEST;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_PARSE;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_UPDATING;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_APK_CACHE_DIR_EMPTY;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_JSON_EMPTY;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NET_REQUEST;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_PARSE;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_UPDATING;
 
 /**
  * 默认版本更新检查者
@@ -99,7 +99,12 @@ public class DefaultUpdateChecker implements IUpdateChecker {
      */
     private void onCheckError(@NonNull IUpdateProxy updateProxy, Throwable error) {
         updateProxy.onAfterCheck();
-        UpdateFacade.onUpdateError(CHECK_NET_REQUEST, error.getMessage());
+
+        if (error instanceof UpdateException) {
+            UpdateFacade.onUpdateError((UpdateException) error);
+        } else {
+            UpdateFacade.onUpdateError(CHECK_NET_REQUEST, error.getMessage());
+        }
     }
 
     @Override
@@ -111,7 +116,7 @@ public class DefaultUpdateChecker implements IUpdateChecker {
                     // 校验是否是已忽略版本
                     if (UpdateUtils.isIgnoreVersion(updateProxy.getContext(), updateEntity.getVersionName())) {
                         // UpdateFacade.onUpdateError(CHECK_IGNORED_VERSION);
-                    // 校验apk下载缓存目录是否为空
+                        // 校验apk下载缓存目录是否为空
                     } else if (TextUtils.isEmpty(updateEntity.getApkCacheDir())) {
                         UpdateFacade.onUpdateError(CHECK_APK_CACHE_DIR_EMPTY);
                     } else {

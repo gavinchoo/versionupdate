@@ -35,7 +35,7 @@ public class DefaultUpdateServiceImpl implements IUpdateHttpService {
             }
 
             @Override
-            public void onError(IOException e) {
+            public void onError(Exception e) {
                 callBack.onError(e);
             }
         });
@@ -50,7 +50,7 @@ public class DefaultUpdateServiceImpl implements IUpdateHttpService {
             }
 
             @Override
-            public void onError(IOException e) {
+            public void onError(Exception e) {
                 callBack.onError(e);
             }
         });

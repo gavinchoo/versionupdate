@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NETWORK;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_WIFI;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.PROMPT_ACTIVITY_DESTROY;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NETWORK;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_WIFI;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.PROMPT_ACTIVITY_DESTROY;
 
 /**
  * 版本更新管理者

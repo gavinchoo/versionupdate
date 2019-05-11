@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.entity.UpdateException;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.listener.OnInstallListener;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.listener.impl.DefaultBundleInstallListener;
@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * 内部版本更新参数的获取

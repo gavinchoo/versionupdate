@@ -22,6 +22,7 @@ import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
@@ -32,9 +33,9 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED_NET_REQUEST;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED_UNKNOW_HOST;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_NET_REQUEST;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_UNKNOW_HOST;
 
 /**
  * APK下载服务
@@ -352,6 +353,8 @@ public class DownloadService extends Service {
                 UpdateFacade.onUpdateError(DOWNLOAD_FAILED_NET_REQUEST, throwable.getMessage());
             } else if (throwable instanceof SocketTimeoutException) {
                 UpdateFacade.onUpdateError(DOWNLOAD_FAILED_UNKNOW_HOST, throwable.getMessage());
+            } else if (throwable instanceof UpdateException) {
+                UpdateFacade.onUpdateError((UpdateException) throwable);
             } else {
                 UpdateFacade.onUpdateError(DOWNLOAD_FAILED, throwable.getMessage());
             }

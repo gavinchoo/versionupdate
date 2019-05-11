@@ -5,7 +5,6 @@ package com.foodsecurity.xupdate.widget;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -25,7 +24,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.foodsecurity.xupdate.R;
@@ -35,13 +33,12 @@ import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 import com.foodsecurity.xupdate.utils.ColorUtils;
-import com.foodsecurity.xupdate.utils.DrawableUtils;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_PERMISSION_DENIED;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.PROMPT_UNKNOWN;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_PERMISSION_DENIED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.PROMPT_UNKNOWN;
 
 /**
  * 版本更新提示器【DialogFragment实现】

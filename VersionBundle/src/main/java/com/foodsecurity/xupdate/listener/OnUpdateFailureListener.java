@@ -3,7 +3,7 @@
 package com.foodsecurity.xupdate.listener;
 
 
-import com.foodsecurity.xupdate.entity.UpdateException;
+import com.foodsecurity.xupdate.exception.UpdateException;
 
 /**
  * 更新失败监听

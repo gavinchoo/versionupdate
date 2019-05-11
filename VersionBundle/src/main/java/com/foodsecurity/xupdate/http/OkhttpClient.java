@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
+import com.foodsecurity.xupdate.exception.UpdateException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +28,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_401;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_404;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_500;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_401;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_404;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_500;
+
 /**
  * @author zhujianwei
  * @date 2019/4/27 19:59
@@ -37,6 +46,10 @@ public class OkhttpClient {
     private final static int DOWNLOAD_STATUS_PROGRESS = 102;
     private final static int DOWNLOAD_STATUS_FAIL = 103;
 
+    private static final int HTTP_200 = 200;
+    private static final int HTTP_401 = 401;
+    private static final int HTTP_404 = 404;
+    private static final int HTTP_500 = 500;
 
     private OkHttpClient okHttpClient;
     private DownloadProgressCallBack progressCallBack;
@@ -80,7 +93,7 @@ public class OkhttpClient {
 
         call = okHttpClient.newCall(request);
         //异步请求
-        call.enqueue(new OkHttpCallack(callBack));
+        call.enqueue(new OkHttpCallback(callBack));
     }
 
     public void post(@NonNull String url, @NonNull Map<String, String> params, final SimpleCallBack callBack) {
@@ -100,34 +113,60 @@ public class OkhttpClient {
         call = okHttpClient.newCall(request);
 
         //异步请求
-        call.enqueue(new OkHttpCallack(callBack));
+        call.enqueue(new OkHttpCallback(callBack));
     }
 
-    private class OkHttpCallack implements Callback {
+    private class OkHttpCallback implements Callback {
 
         SimpleCallBack callBack;
 
-        public OkHttpCallack(SimpleCallBack callBack) {
+        public OkHttpCallback(SimpleCallBack callBack) {
             this.callBack = callBack;
         }
 
         @Override
         public void onFailure(Call call, final IOException e) {
+            handException(e);
+        }
+
+        @Override
+        public void onResponse(Call call, final Response response) {
+            try {
+                // 数据请求异常
+                if (response.code() != HTTP_200) {
+                    if (response.code() == HTTP_401) {
+                        throw new UpdateException(CHECK_FAILED_401, response.message());
+                    } else if (response.code() == HTTP_404) {
+                        throw new UpdateException(CHECK_FAILED_404, response.message());
+                    } else if (response.code() == HTTP_500) {
+                        throw new UpdateException(CHECK_FAILED_500, response.message());
+                    } else {
+                        throw new UpdateException(response.code(), response.message());
+                    }
+                }
+
+                final String body = response.body().string();
+                handSuccess(body);
+            } catch (Exception e) {
+                e.printStackTrace();
+                handException(e);
+            }
+        }
+
+        private void handSuccess(final String response) {
             mHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    callBack.onError(e);
+                    callBack.onSuccess(response);
                 }
             });
         }
 
-        @Override
-        public void onResponse(Call call, final Response response) throws IOException {
-            final String body = response.body().string();
+        private void handException(final Exception e) {
             mHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    callBack.onSuccess(body);
+                    callBack.onError(e);
                 }
             });
         }
@@ -154,7 +193,6 @@ public class OkhttpClient {
     }
 
     private class DownloadCallback implements Callback {
-
         private String destFileDir;
         private String destFileName;
         private long fileSize;
@@ -189,6 +227,18 @@ public class OkhttpClient {
 
             downloadFile = new File(dir, destFileName);
             try {
+                if (response.code() != HTTP_200) {
+                    if (response.code() == HTTP_401) {
+                        throw new UpdateException(DOWNLOAD_FAILED_401, response.message());
+                    } else if (response.code() == HTTP_404) {
+                        throw new UpdateException(DOWNLOAD_FAILED_404, response.message());
+                    } else if (response.code() == HTTP_500) {
+                        throw new UpdateException(DOWNLOAD_FAILED_500, response.message());
+                    } else {
+                        throw new UpdateException(response.code(), response.message());
+                    }
+                }
+
                 is = response.body().byteStream();
                 long totalSize = fileSize;
                 long total = response.body().contentLength();
@@ -309,7 +359,7 @@ public class OkhttpClient {
          *
          * @param e
          */
-        void onError(IOException e);
+        void onError(Exception e);
 
         /**
          * 请求成功

@@ -5,13 +5,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.entity.UpdateException;
-import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
@@ -20,8 +17,6 @@ import com.foodsecurity.xupdate.utils.UpdateUtils;
 import com.pingan.foodsecurity.bundle.version.R;
 
 import java.util.List;
-
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
 
 public class MainActivity extends AppCompatActivity {
 

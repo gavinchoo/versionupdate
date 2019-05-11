@@ -5,11 +5,11 @@ package com.foodsecurity.xupdate.listener.impl;
 import android.widget.Toast;
 
 import com.foodsecurity.xupdate.Xupdate;
-import com.foodsecurity.xupdate.entity.UpdateException;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.listener.OnUpdateFailureListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
 
 /**
  * 默认的更新出错的处理

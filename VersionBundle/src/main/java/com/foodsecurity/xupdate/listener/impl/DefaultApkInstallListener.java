@@ -13,7 +13,7 @@ import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 import java.io.File;
 import java.io.IOException;
 
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * 默认的apk安装监听

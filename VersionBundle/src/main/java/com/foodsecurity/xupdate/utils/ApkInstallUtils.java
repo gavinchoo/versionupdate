@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static android.Manifest.permission.INSTALL_PACKAGES;
-import static com.foodsecurity.xupdate.entity.UpdateException.Error.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * APK安装工具类
