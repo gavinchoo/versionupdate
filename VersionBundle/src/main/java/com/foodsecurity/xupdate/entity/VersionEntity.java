@@ -57,6 +57,20 @@ public class VersionEntity {
      */
     private boolean isSilent;
 
+    /**
+     * 是否可以忽略升级
+     */
+    private boolean isIgnorable;
+
+    public boolean isIgnorable() {
+        return isIgnorable;
+    }
+
+    public VersionEntity setIgnorable(boolean ignorable) {
+        isIgnorable = ignorable;
+        return this;
+    }
+
     public boolean isSilent() {
         return isSilent;
     }
@@ -178,6 +192,7 @@ public class VersionEntity {
                 ", fileName='" + fileName + '\'' +
                 ", alias='" + alias + '\'' +
                 ", fileSize=" + fileSize +
+                ", isIgnorable=" + isIgnorable +
                 ", isSilent=" + isSilent +
                 '}';
     }

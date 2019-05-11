@@ -108,10 +108,10 @@ public class DefaultUpdateChecker implements IUpdateChecker {
             UpdateEntity updateEntity = updateProxy.parseJson(result);
             if (updateEntity != null) {
                 if (updateEntity.isHasUpdate()) {
-                    //校验是否是已忽略版本
+                    // 校验是否是已忽略版本
                     if (UpdateUtils.isIgnoreVersion(updateProxy.getContext(), updateEntity.getVersionName())) {
-                        UpdateFacade.onUpdateError(CHECK_IGNORED_VERSION);
-                    //校验apk下载缓存目录是否为空
+                        // UpdateFacade.onUpdateError(CHECK_IGNORED_VERSION);
+                    // 校验apk下载缓存目录是否为空
                     } else if (TextUtils.isEmpty(updateEntity.getApkCacheDir())) {
                         UpdateFacade.onUpdateError(CHECK_APK_CACHE_DIR_EMPTY);
                     } else {

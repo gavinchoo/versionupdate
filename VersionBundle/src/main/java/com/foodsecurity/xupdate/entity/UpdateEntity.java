@@ -287,7 +287,9 @@ public class UpdateEntity implements Parcelable {
         return mDownloadEntity;
     }
 
-    /** 内部变量，请勿设置 */
+    /**
+     * 内部变量，请勿设置
+     */
     private IUpdateHttpService mIUpdateHttpService;
 
     public UpdateEntity setIUpdateHttpService(IUpdateHttpService updateHttpService) {

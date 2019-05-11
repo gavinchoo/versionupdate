@@ -89,8 +89,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
     /**
      * 底部关闭
      */
-    private LinearLayout mLlClose;
-    private ImageView mIvClose;
+    private Button mIvClose;
 
     //======更新信息========//
     /**
@@ -196,8 +195,6 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         //进度条
         mNumberProgressBar = view.findViewById(R.id.npb_progress);
 
-        //关闭按钮+线 的整个布局
-        mLlClose = view.findViewById(R.id.ll_close);
         //关闭按钮
         mIvClose = view.findViewById(R.id.iv_close);
     }
@@ -237,17 +234,19 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
     private void initUpdateInfo(UpdateEntity updateEntity) {
         //弹出对话框
         final String newVersion = updateEntity.getVersionName();
-        String updateInfo = UpdateUtils.getDisplayUpdateInfo(getContext(), updateEntity);
+        // String updateInfo = UpdateUtils.getDisplayUpdateInfo(getContext(), updateEntity);
         //更新内容
-        mTvUpdateInfo.setText(updateInfo);
-        mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_update), newVersion));
+        mTvUpdateInfo.setText(updateEntity.getUpdateContent());
 
         //强制更新,不显示关闭按钮
         if (updateEntity.isForce()) {
-            mLlClose.setVisibility(View.GONE);
+            mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_force_update), newVersion));
+            mIvClose.setVisibility(View.GONE);
         } else {
+            mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_update), newVersion));
             //不是强制更新时，才生效
             if (updateEntity.isIgnorable()) {
+                mIvClose.setVisibility(View.GONE);
                 mTvIgnore.setVisibility(View.VISIBLE);
             }
         }
@@ -275,12 +274,10 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         } else {
             mIvTop.setImageResource(topResId);
         }
-        mBtnUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
-        mBtnBackgroundUpdate.setBackground(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
         mNumberProgressBar.setProgressTextColor(color);
         mNumberProgressBar.setReachedBarColor(color);
         //随背景颜色变化
-        mBtnUpdate.setTextColor(ColorUtils.isColorDark(color) ? Color.WHITE : Color.BLACK);
+        mBtnUpdate.setTextColor(color);
     }
 
     private void initListeners() {
@@ -302,6 +299,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
             } else {
                 installApp();
             }
+            mIvClose.setVisibility(View.GONE);
         } else if (i == R.id.btn_background_update) {
             //点击后台更新按钮
             mIUpdateProxy.backgroundDownload();

@@ -37,6 +37,7 @@ public class DefaultUpdateParser implements IUpdateParser {
                         updateEntity.setForce(true);
                     }
                     updateEntity.setHasUpdate(true)
+                            .setIsIgnorable(versionEntity.isIgnorable())
                             .setUpdateContent(versionEntity.getModifyContent())
                             .setVersionCode(versionEntity.getVersionCode())
                             .setVersionName(versionEntity.getVersionName())

@@ -74,14 +74,6 @@ IUpdateProxy/XUpdate --- (update) ---> IUpdateChecker --->（请求服务器，�
 
 ![](img/update_2.png)
 
-* 自定义提示弹窗主题
-
-![](img/update_3.png)
-
-* 使用系统弹窗提示
-
-![](img/update_4.png)
-
 ## 2、如何使用
 目前支持主流开发工具AndroidStudio的使用，直接配置build.gradle，增加依赖即可.
 
@@ -384,5 +376,5 @@ _XUpdate.startInstallApk(getContext(), FileUtils.getFileByPath(PathUtils.getFile
 ## 混淆配置
 
 ```
--keep class com.xuexiang.xupdate.entity.** { *; }
+-keep class com.foodsecurity.xupdate.entity.** { *; }
 ```
