@@ -29,5 +29,6 @@
     <string name="xupdate_lab_ready_force_update">upgrade to version %s, please</string>
     <string name="xupdate_lab_new_version_size">New version size:</string>
     <string name="xupdate_lab_downloading">Downloading：</string>
+    <string name="xupdate_downloading">Downloading</string>
     <string name="xupdate_tip_download_url_error">New version download path error</string>
 </resources>

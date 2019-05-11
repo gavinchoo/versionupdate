@@ -33,9 +33,7 @@ public class DefaultUpdateParser implements IUpdateParser {
                 if (versionEntity.getUpdateStatus() == ApkVersionResult.NO_NEW_VERSION) {
                     updateEntity.setHasUpdate(false);
                 } else {
-                    if (versionEntity.getUpdateStatus() == ApkVersionResult.HAVE_NEW_VERSION_FORCED_UPLOAD) {
-                        updateEntity.setForce(true);
-                    }
+
                     updateEntity.setHasUpdate(true)
                             .setIsIgnorable(versionEntity.isIgnorable())
                             .setUpdateContent(versionEntity.getModifyContent())
@@ -45,6 +43,10 @@ public class DefaultUpdateParser implements IUpdateParser {
                             .setSize(versionEntity.getFileSize())
                             .setFileName(versionEntity.getFileName())
                             .setMd5(versionEntity.getMd5());
+
+                    if (versionEntity.getUpdateStatus() == ApkVersionResult.HAVE_NEW_VERSION_FORCED_UPLOAD) {
+                        updateEntity.setForce(true);
+                    }
                 }
                 return updateEntity;
             }

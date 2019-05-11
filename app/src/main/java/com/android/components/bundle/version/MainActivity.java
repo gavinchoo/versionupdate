@@ -138,20 +138,11 @@ public class MainActivity extends AppCompatActivity {
     private void initUpdate() {
         Xupdate.get()
                 .debug(true)
-                .isWifiOnly(true)     //默认设置只在wifi下检查版本更新
-                .isGet(false)          //默认设置使用get请求检查版本
-                .isAutoMode(false)    //默认设置非自动模式，可根据具体使用配置
-                .param("versionCode", "" + UpdateUtils.getVersionCode(this)) //设置默认公共请求参数
+                .isWifiOnly(true)
+                .isGet(false)
+                .isAutoMode(false)
+                .param("versionCode", "" + UpdateUtils.getVersionCode(this))
                 .param("appKey", getPackageName())
-                .setOnUpdateFailureListener(new OnUpdateFailureListener() { //设置版本更新出错的监听
-                    @Override
-                    public void onFailure(UpdateException error) {
-                        if (error.getCode() != CHECK_NO_NEW_VERSION) { //对不同错误进行处理
-                            Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .init(this.getApplication());   //这个必须初始化
-
+                .init(this.getApplication());
     }
 }

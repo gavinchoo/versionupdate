@@ -175,11 +175,14 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
      * @param updateEntity
      */
     private void initUpdateInfo(UpdateEntity updateEntity) {
-        //弹出对话框
+        // 弹出对话框
         final String newVersion = updateEntity.getVersionName();
-        // String updateInfo = UpdateUtils.getDisplayUpdateInfo(getContext(), updateEntity);
-        //更新内容
+        // 更新内容
         mTvUpdateInfo.setText(updateEntity.getUpdateContent());
+        mBtnUpdate.setVisibility(View.VISIBLE);
+        mNumberProgressBar.setVisibility(View.GONE);
+        mNumberProgressBar.setProgress(0);
+        mIvClose.setVisibility(View.VISIBLE);
 
         //强制更新,不显示关闭按钮
         if (updateEntity.isForce()) {
@@ -236,9 +239,10 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
             if (flag != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions((Activity) mIUpdateProxy.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_REQUEST_PERMISSIONS);
             } else {
+                mTvIgnore.setVisibility(View.GONE);
+                mIvClose.setVisibility(View.GONE);
                 installApp();
             }
-            mIvClose.setVisibility(View.GONE);
         } else if (i == R.id.btn_background_update) {
             //点击后台更新按钮
             mIUpdateProxy.backgroundDownload();
@@ -276,6 +280,7 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
         @Override
         public void onStart() {
             if (isShowing()) {
+                mTvTitle.setText(R.string.xupdate_downloading);
                 mNumberProgressBar.setVisibility(View.VISIBLE);
                 mBtnUpdate.setVisibility(View.GONE);
                 if (mPromptEntity.isSupportBackgroundUpdate()
@@ -311,8 +316,12 @@ public class UpdateDialog extends BaseDialog implements View.OnClickListener {
 
         @Override
         public void onError(Throwable throwable) {
-            if (isShowing()) {
-                dismiss();
+            if (null != mUpdateEntity && mUpdateEntity.isForce()) {
+                initUpdateInfo(mUpdateEntity);
+            } else {
+                if (isShowing()) {
+                    dismiss();
+                }
             }
         }
     };

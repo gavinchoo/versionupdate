@@ -19,13 +19,16 @@ public class UpdateException extends Throwable {
      */
     private final int mCode;
 
+    private String mDetailMsg;
+
     public UpdateException(int code) {
         this(code, null);
     }
 
     public UpdateException(int code, String message) {
-        super(make(code, message));
+        super(make(code));
         mCode = code;
+        mDetailMsg = makeDetail(code, message);
     }
 
     public UpdateException(Throwable e) {
@@ -42,7 +45,15 @@ public class UpdateException extends Throwable {
         return getMessage();
     }
 
-    private static String make(int code, String message) {
+    private static String make(int code) {
+        String m = S_MESSAGES.get(code);
+        if (TextUtils.isEmpty(m)) {
+            return "";
+        }
+        return m;
+    }
+
+    private static String makeDetail(int code, String message) {
         String m = S_MESSAGES.get(code);
         if (TextUtils.isEmpty(m)) {
             return "";
@@ -59,7 +70,7 @@ public class UpdateException extends Throwable {
      * @return
      */
     public String getDetailMsg() {
-        return "Code:" + mCode + ", msg:" + getMessage();
+        return "Code:" + mCode + ", msg: " + mDetailMsg;
     }
 
     /**
@@ -84,7 +95,8 @@ public class UpdateException extends Throwable {
 
         public static final int DOWNLOAD_FAILED = 4000;
         public static final int DOWNLOAD_PERMISSION_DENIED = DOWNLOAD_FAILED + 1;
-
+        public static final int DOWNLOAD_FAILED_NET_REQUEST = DOWNLOAD_PERMISSION_DENIED + 1;
+        public static final int DOWNLOAD_FAILED_UNKNOW_HOST = DOWNLOAD_FAILED_NET_REQUEST + 1;
         /**
          * apk安装错误
          */
@@ -99,7 +111,7 @@ public class UpdateException extends Throwable {
     private static final SparseArray<String> S_MESSAGES = new SparseArray<String>();
 
     static {
-        S_MESSAGES.append(Error.CHECK_NET_REQUEST, "查询失败：网络请求错误");
+        S_MESSAGES.append(Error.CHECK_NET_REQUEST, "查询失败：网络连接异常");
         S_MESSAGES.append(Error.CHECK_NO_WIFI, "查询失败：没有WIFI");
         S_MESSAGES.append(Error.CHECK_NO_NETWORK, "查询失败：没有网络");
         S_MESSAGES.append(Error.CHECK_UPDATING, "程序正在进行版本更新！");
@@ -113,8 +125,9 @@ public class UpdateException extends Throwable {
         S_MESSAGES.append(Error.PROMPT_ACTIVITY_DESTROY, "提示失败：activity已被销毁");
 
         S_MESSAGES.append(Error.DOWNLOAD_FAILED, "下载失败");
+        S_MESSAGES.append(Error.DOWNLOAD_FAILED_NET_REQUEST, "下载失败, 网络连接异常");
+        S_MESSAGES.append(Error.DOWNLOAD_FAILED_UNKNOW_HOST, "下载失败, 网络环境错误");
         S_MESSAGES.append(Error.DOWNLOAD_PERMISSION_DENIED, "无法下载：存储权限申请被拒绝！");
-
 
         S_MESSAGES.append(Error.INSTALL_FAILED, "安装APK失败！");
     }

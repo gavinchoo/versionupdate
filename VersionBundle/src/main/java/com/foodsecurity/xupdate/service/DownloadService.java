@@ -28,8 +28,13 @@ import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED_NET_REQUEST;
+import static com.foodsecurity.xupdate.entity.UpdateException.Error.DOWNLOAD_FAILED_UNKNOW_HOST;
 
 /**
  * APK下载服务
@@ -343,8 +348,14 @@ public class DownloadService extends Service {
             if (mIsCancel) {
                 return;
             }
+            if (throwable instanceof UnknownHostException || throwable instanceof ConnectException) {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED_NET_REQUEST, throwable.getMessage());
+            } else if (throwable instanceof SocketTimeoutException) {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED_UNKNOW_HOST, throwable.getMessage());
+            } else {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED, throwable.getMessage());
+            }
 
-            UpdateFacade.onUpdateError(DOWNLOAD_FAILED, throwable.getMessage());
             //App前台运行
             if (mOnFileDownloadListener != null) {
                 mOnFileDownloadListener.onError(throwable);

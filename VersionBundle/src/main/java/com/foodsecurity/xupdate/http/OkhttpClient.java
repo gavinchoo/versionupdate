@@ -50,7 +50,7 @@ public class OkhttpClient {
             okHttpClient = new OkHttpClient.Builder()
                     .sslSocketFactory(sslContext.getSocketFactory(), x509TrustManager)
                     .connectTimeout(15, TimeUnit.SECONDS)
-                    .readTimeout(45, TimeUnit.SECONDS)
+                    .readTimeout(25, TimeUnit.SECONDS)
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,6 +163,8 @@ public class OkhttpClient {
             this.destFileDir = destFileDir;
             this.destFileName = destFileName;
             this.fileSize = fileSize;
+
+            mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
         }
 
         @Override
@@ -171,12 +173,7 @@ public class OkhttpClient {
             if (e != null) {
                 e.printStackTrace();
             }
-            mHander.post(new Runnable() {
-                @Override
-                public void run() {
-                    progressCallBack.onError(e);
-                }
-            });
+            handException(e);
         }
 
         @Override
@@ -190,7 +187,6 @@ public class OkhttpClient {
             //储存下载文件的目录
             File dir = createDownloadDirs(destFileDir);
 
-            mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
             downloadFile = new File(dir, destFileName);
             try {
                 is = response.body().byteStream();
@@ -222,7 +218,7 @@ public class OkhttpClient {
                 mHander.sendEmptyMessage(DOWNLOAD_STATUS_COMPLETE);
             } catch (Exception e) {
                 e.printStackTrace();
-                mHander.sendEmptyMessage(DOWNLOAD_STATUS_FAIL);
+                handException(e);
             } finally {
                 try {
                     if (is != null) {
@@ -242,6 +238,15 @@ public class OkhttpClient {
                 dir.mkdirs();
             }
             return dir;
+        }
+
+        private void handException(final Exception e) {
+            mHander.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressCallBack.onError(e);
+                }
+            });
         }
     }
 
@@ -280,7 +285,7 @@ public class OkhttpClient {
          *
          * @param e
          */
-        void onError(IOException e);
+        void onError(Exception e);
 
         /**
          * 下载中进度更新
