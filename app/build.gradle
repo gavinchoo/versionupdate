@@ -6,8 +6,14 @@ android {
         applicationId "com.pingan.foodsecurity.bundle.version"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0.0"
+
+        if("true".equals(IS_JENKINS)){
+            versionCode Integer.parseInt(project.VERSION_CODE)
+            versionName project.VERSION_NAME
+        } else {
+            versionCode 1
+            versionName "1.0.0"
+        }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
