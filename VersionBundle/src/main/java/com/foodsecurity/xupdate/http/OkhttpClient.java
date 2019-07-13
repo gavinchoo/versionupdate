@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
+import com.foodsecurity.xupdate.exception.UpdateException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +28,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_401;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_404;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_FAILED_500;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_401;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_404;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_500;
+
 /**
  * @author zhujianwei
  * @date 2019/4/27 19:59
@@ -37,6 +46,10 @@ public class OkhttpClient {
     private final static int DOWNLOAD_STATUS_PROGRESS = 102;
     private final static int DOWNLOAD_STATUS_FAIL = 103;
 
+    private static final int HTTP_200 = 200;
+    private static final int HTTP_401 = 401;
+    private static final int HTTP_404 = 404;
+    private static final int HTTP_500 = 500;
 
     private OkHttpClient okHttpClient;
     private DownloadProgressCallBack progressCallBack;
@@ -46,11 +59,11 @@ public class OkhttpClient {
     public OkhttpClient() {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{UnSafeTrustManager}, null);
+            sslContext.init(null, new TrustManager[]{x509TrustManager}, null);
             okHttpClient = new OkHttpClient.Builder()
-                    .sslSocketFactory(sslContext.getSocketFactory(), UnSafeTrustManager)
+                    .sslSocketFactory(sslContext.getSocketFactory(), x509TrustManager)
                     .connectTimeout(15, TimeUnit.SECONDS)
-                    .readTimeout(45, TimeUnit.SECONDS)
+                    .readTimeout(25, TimeUnit.SECONDS)
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,7 +93,7 @@ public class OkhttpClient {
 
         call = okHttpClient.newCall(request);
         //异步请求
-        call.enqueue(new OkHttpCallack(callBack));
+        call.enqueue(new OkHttpCallback(callBack));
     }
 
     public void post(@NonNull String url, @NonNull Map<String, String> params, final SimpleCallBack callBack) {
@@ -100,34 +113,60 @@ public class OkhttpClient {
         call = okHttpClient.newCall(request);
 
         //异步请求
-        call.enqueue(new OkHttpCallack(callBack));
+        call.enqueue(new OkHttpCallback(callBack));
     }
 
-    private class OkHttpCallack implements Callback {
+    private class OkHttpCallback implements Callback {
 
         SimpleCallBack callBack;
 
-        public OkHttpCallack(SimpleCallBack callBack) {
+        public OkHttpCallback(SimpleCallBack callBack) {
             this.callBack = callBack;
         }
 
         @Override
         public void onFailure(Call call, final IOException e) {
+            handException(e);
+        }
+
+        @Override
+        public void onResponse(Call call, final Response response) {
+            try {
+                // 数据请求异常
+                if (response.code() != HTTP_200) {
+                    if (response.code() == HTTP_401) {
+                        throw new UpdateException(CHECK_FAILED_401, response.message());
+                    } else if (response.code() == HTTP_404) {
+                        throw new UpdateException(CHECK_FAILED_404, response.message());
+                    } else if (response.code() == HTTP_500) {
+                        throw new UpdateException(CHECK_FAILED_500, response.message());
+                    } else {
+                        throw new UpdateException(response.code(), response.message());
+                    }
+                }
+
+                final String body = response.body().string();
+                handSuccess(body);
+            } catch (Exception e) {
+                e.printStackTrace();
+                handException(e);
+            }
+        }
+
+        private void handSuccess(final String response) {
             mHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    callBack.onError(e);
+                    callBack.onSuccess(response);
                 }
             });
         }
 
-        @Override
-        public void onResponse(Call call, final Response response) throws IOException {
-            final String body = response.body().string();
+        private void handException(final Exception e) {
             mHander.post(new Runnable() {
                 @Override
                 public void run() {
-                    callBack.onSuccess(body);
+                    callBack.onError(e);
                 }
             });
         }
@@ -150,83 +189,117 @@ public class OkhttpClient {
                 .build();
         call = okHttpClient.newCall(request);
         //异步请求
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, final IOException e) {
-                // 下载失败监听回调
-                if (e != null) {
-                    e.printStackTrace();
-                }
-                mHander.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressCallBack.onError(e);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-
-                InputStream is = null;
-                byte[] buf = new byte[2048];
-                int len = 0;
-                FileOutputStream fos = null;
-
-                //储存下载文件的目录
-                File dir = new File(destFileDir);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-
-                mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
-
-                downloadFile = new File(dir, destFileName);
-                try {
-                    is = response.body().byteStream();
-                    long totalSize = fileSize;
-                    long total = response.body().contentLength();
-                    if (total != 0) {
-                        totalSize = total;
-                    }
-                    fos = new FileOutputStream(downloadFile);
-                    long sum = 0;
-                    int curProgress = 0;
-                    while ((len = is.read(buf)) != -1) {
-                        fos.write(buf, 0, len);
-                        sum += len;
-                        int progress = (int) (sum * 1.0f / totalSize * 100);
-
-                        if (progress > curProgress) {
-                            curProgress = progress;
-                            //下载中更新进度条
-                            Message msg = new Message();
-                            msg.what = DOWNLOAD_STATUS_PROGRESS;
-                            msg.arg1 = curProgress;
-                            msg.obj = totalSize;
-                            mHander.sendMessage(msg);
-                        }
-                    }
-                    fos.flush();
-                    //下载完成
-                    mHander.sendEmptyMessage(DOWNLOAD_STATUS_COMPLETE);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    mHander.sendEmptyMessage(DOWNLOAD_STATUS_FAIL);
-                } finally {
-                    try {
-                        if (is != null) {
-                            is.close();
-                        }
-                        if (fos != null) {
-                            fos.close();
-                        }
-                    } catch (IOException e) {
-                    }
-                }
-            }
-        });
+        call.enqueue(new DownloadCallback(destFileDir, destFileName, fileSize));
     }
+
+    private class DownloadCallback implements Callback {
+        private String destFileDir;
+        private String destFileName;
+        private long fileSize;
+
+        public DownloadCallback(String destFileDir, String destFileName, long fileSize) {
+            this.destFileDir = destFileDir;
+            this.destFileName = destFileName;
+            this.fileSize = fileSize;
+
+            mHander.sendEmptyMessage(DOWNLOAD_STATUS_START);
+        }
+
+        @Override
+        public void onFailure(Call call, final IOException e) {
+            // 下载失败监听回调
+            if (e != null) {
+                e.printStackTrace();
+            }
+            handException(e);
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) {
+
+            InputStream is = null;
+            byte[] buf = new byte[2048];
+            int len = 0;
+            FileOutputStream fos = null;
+
+            //储存下载文件的目录
+            File dir = createDownloadDirs(destFileDir);
+
+            downloadFile = new File(dir, destFileName);
+            try {
+                if (response.code() != HTTP_200) {
+                    if (response.code() == HTTP_401) {
+                        throw new UpdateException(DOWNLOAD_FAILED_401, response.message());
+                    } else if (response.code() == HTTP_404) {
+                        throw new UpdateException(DOWNLOAD_FAILED_404, response.message());
+                    } else if (response.code() == HTTP_500) {
+                        throw new UpdateException(DOWNLOAD_FAILED_500, response.message());
+                    } else {
+                        throw new UpdateException(response.code(), response.message());
+                    }
+                }
+
+                is = response.body().byteStream();
+                long totalSize = fileSize;
+                long total = response.body().contentLength();
+                if (total != 0) {
+                    totalSize = total;
+                }
+                fos = new FileOutputStream(downloadFile);
+                long sum = 0;
+                int curProgress = 0;
+                while ((len = is.read(buf)) != -1) {
+                    fos.write(buf, 0, len);
+                    sum += len;
+                    int progress = (int) (sum * 1.0f / totalSize * 100);
+
+                    if (progress > curProgress) {
+                        curProgress = progress;
+                        //下载中更新进度条
+                        Message msg = new Message();
+                        msg.what = DOWNLOAD_STATUS_PROGRESS;
+                        msg.arg1 = curProgress;
+                        msg.obj = totalSize;
+                        mHander.sendMessage(msg);
+                    }
+                }
+                fos.flush();
+                //下载完成
+                mHander.sendEmptyMessage(DOWNLOAD_STATUS_COMPLETE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                handException(e);
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        private File createDownloadDirs(String dirs) {
+            File dir = new File(dirs);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            return dir;
+        }
+
+        private void handException(final Exception e) {
+            mHander.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressCallBack.onError(e);
+                }
+            });
+        }
+    }
+
 
     private Handler mHander = new Handler() {
         @Override
@@ -252,23 +325,51 @@ public class OkhttpClient {
     };
 
     public interface DownloadProgressCallBack {
-        public void onStart();
+        /**
+         * 开始下载
+         */
+        void onStart();
 
-        public void onError(IOException e);
+        /**
+         * 下载异常失败
+         *
+         * @param e
+         */
+        void onError(Exception e);
 
-        public void update(long totalSize, int progress);
+        /**
+         * 下载中进度更新
+         *
+         * @param totalSize
+         * @param progress
+         */
+        void update(long totalSize, int progress);
 
-        public void onComplete(File downloadFile);
+        /**
+         * 文件下载完成
+         *
+         * @param downloadFile 下载的本地文件
+         */
+        void onComplete(File downloadFile);
     }
 
     public interface SimpleCallBack {
+        /**
+         * 请求异常
+         *
+         * @param e
+         */
+        void onError(Exception e);
 
-        public void onError(IOException e);
-
-        public void onSuccess(String response);
+        /**
+         * 请求成功
+         *
+         * @param response
+         */
+        void onSuccess(String response);
     }
 
-    private X509TrustManager UnSafeTrustManager = new X509TrustManager() {
+    private X509TrustManager x509TrustManager = new X509TrustManager() {
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 

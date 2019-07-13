@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2018 xuexiangjys(xuexiangjys@163.com)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,8 @@
   -->
 
 <resources>
-    <string name="xupdate_lab_update">升级</string>
+    <string name="xupdate_lab_update_cancel">取消</string>
+    <string name="xupdate_lab_update">马上升级</string>
     <string name="xupdate_lab_background_update">后台更新</string>
     <string name="xupdate_lab_install">安装</string>
     <string name="xupdate_lab_ignore">忽略此版本</string>
@@ -25,8 +25,10 @@
     <string name="xupdate_start_download">开始下载</string>
     <string name="xupdate_download_complete">下载完成，请点击安装</string>
     <string name="xupdate_lab_ready_update">是否升级到%s版本？</string>
+    <string name="xupdate_lab_ready_force_update">发现新版本%s，请升级</string>
     <string name="xupdate_lab_new_version_size">新版本大小：</string>
     <string name="xupdate_lab_downloading">正在下载：</string>
+    <string name="xupdate_downloading">正在下载更新，请稍后</string>
     <string name="xupdate_tip_download_url_error">新版本下载路径错误</string>
 
 </resources>

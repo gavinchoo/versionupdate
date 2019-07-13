@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static android.Manifest.permission.INSTALL_PACKAGES;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.INSTALL_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_FAILED;
 
 /**
  * APK安装工具类
@@ -95,7 +95,9 @@ public final class ApkInstallUtils {
     @RequiresPermission(INSTALL_PACKAGES)
     private static boolean installAppSilentBelow24(Context context, String filePath) {
         File file = getFileByPath(filePath);
-        if (!isFileExists(file)) return false;
+        if (!isFileExists(file)) {
+            return false;
+        }
 
         String pmParams = " -r " + getInstallLocationParams();
 
@@ -122,8 +124,9 @@ public final class ApkInstallUtils {
                 return "-f";
             case APP_INSTALL_EXTERNAL:
                 return "-s";
+            default:
+                return "";
         }
-        return "";
     }
 
     /**
@@ -147,6 +150,8 @@ public final class ApkInstallUtils {
                         return APP_INSTALL_INTERNAL;
                     case APP_INSTALL_EXTERNAL:
                         return APP_INSTALL_EXTERNAL;
+                    default:
+                        return APP_INSTALL_AUTO;
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
@@ -156,6 +161,7 @@ public final class ApkInstallUtils {
     }
 
     //===============================//
+
     /**
      * 静默安装 App 在Android7.0及以上起作用
      * <p>非 root 需添加权限
@@ -167,7 +173,9 @@ public final class ApkInstallUtils {
     @RequiresPermission(INSTALL_PACKAGES)
     private static boolean installAppSilentAbove24(String packageName, String filePath) {
         File file = getFileByPath(filePath);
-        if (!isFileExists(file)) return false;
+        if (!isFileExists(file)) {
+            return false;
+        }
         boolean isRoot = isDeviceRooted();
         String command = "pm install -i " + packageName + " --user 0 " + filePath;
         CommandResult commandResult = ShellUtils.execCommand(command, isRoot);
@@ -254,7 +262,9 @@ public final class ApkInstallUtils {
      * @return {@code true}: null 或全空白字符<br> {@code false}: 不为 null 且不全空白字符
      */
     private static boolean isSpace(final String s) {
-        if (s == null) return true;
+        if (s == null) {
+            return true;
+        }
         for (int i = 0, len = s.length(); i < len; ++i) {
             if (!Character.isWhitespace(s.charAt(i))) {
                 return false;

@@ -5,7 +5,6 @@ package com.foodsecurity.xupdate.widget;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -25,7 +24,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.foodsecurity.xupdate.R;
@@ -35,13 +33,12 @@ import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 import com.foodsecurity.xupdate.utils.ColorUtils;
-import com.foodsecurity.xupdate.utils.DrawableUtils;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.DOWNLOAD_PERMISSION_DENIED;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.PROMPT_UNKNOWN;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_PERMISSION_DENIED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.PROMPT_UNKNOWN;
 
 /**
  * 版本更新提示器【DialogFragment实现】
@@ -89,8 +86,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
     /**
      * 底部关闭
      */
-    private LinearLayout mLlClose;
-    private ImageView mIvClose;
+    private Button mIvClose;
 
     //======更新信息========//
     /**
@@ -196,8 +192,6 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         //进度条
         mNumberProgressBar = view.findViewById(R.id.npb_progress);
 
-        //关闭按钮+线 的整个布局
-        mLlClose = view.findViewById(R.id.ll_close);
         //关闭按钮
         mIvClose = view.findViewById(R.id.iv_close);
     }
@@ -237,17 +231,22 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
     private void initUpdateInfo(UpdateEntity updateEntity) {
         //弹出对话框
         final String newVersion = updateEntity.getVersionName();
-        String updateInfo = UpdateUtils.getDisplayUpdateInfo(getContext(), updateEntity);
         //更新内容
-        mTvUpdateInfo.setText(updateInfo);
-        mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_update), newVersion));
+        mTvUpdateInfo.setText(updateEntity.getUpdateContent());
+        mBtnUpdate.setVisibility(View.VISIBLE);
+        mNumberProgressBar.setVisibility(View.GONE);
+        mNumberProgressBar.setProgress(0);
+        mIvClose.setVisibility(View.VISIBLE);
 
         //强制更新,不显示关闭按钮
         if (updateEntity.isForce()) {
-            mLlClose.setVisibility(View.GONE);
+            mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_force_update), newVersion));
+            mIvClose.setVisibility(View.GONE);
         } else {
+            mTvTitle.setText(String.format(getString(R.string.xupdate_lab_ready_update), newVersion));
             //不是强制更新时，才生效
             if (updateEntity.isIgnorable()) {
+                mIvClose.setVisibility(View.GONE);
                 mTvIgnore.setVisibility(View.VISIBLE);
             }
         }
@@ -275,12 +274,10 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         } else {
             mIvTop.setImageResource(topResId);
         }
-        mBtnUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
-        mBtnBackgroundUpdate.setBackgroundDrawable(DrawableUtils.getDrawable(UpdateUtils.dip2px(4, getActivity()), color));
         mNumberProgressBar.setProgressTextColor(color);
         mNumberProgressBar.setReachedBarColor(color);
         //随背景颜色变化
-        mBtnUpdate.setTextColor(ColorUtils.isColorDark(color) ? Color.WHITE : Color.BLACK);
+        mBtnUpdate.setTextColor(color);
     }
 
     private void initListeners() {
@@ -300,6 +297,8 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
             if (flag != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_REQUEST_PERMISSIONS);
             } else {
+                mTvIgnore.setVisibility(View.GONE);
+                mIvClose.setVisibility(View.GONE);
                 installApp();
             }
         } else if (i == R.id.btn_background_update) {
@@ -354,6 +353,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         @Override
         public void onStart() {
             if (!UpdateDialogFragment.this.isRemoving()) {
+                mTvTitle.setText(R.string.xupdate_downloading);
                 mNumberProgressBar.setVisibility(View.VISIBLE);
                 mBtnUpdate.setVisibility(View.GONE);
                 if (mPromptEntity.isSupportBackgroundUpdate()
@@ -389,8 +389,12 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
 
         @Override
         public void onError(Throwable throwable) {
-            if (!UpdateDialogFragment.this.isRemoving()) {
-                dismissAllowingStateLoss();
+            if (null != mUpdateEntity && mUpdateEntity.isForce()) {
+                initUpdateInfo(mUpdateEntity);
+            } else {
+                if (!UpdateDialogFragment.this.isRemoving()) {
+                    dismissAllowingStateLoss();
+                }
             }
         }
     };

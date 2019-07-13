@@ -36,6 +36,10 @@ import java.util.List;
  */
 public final class UpdateUtils {
 
+    private static final int KB = 1024;
+    private static final int MB = 1048576;
+    private static final int GB = 1073741824;
+
     private static final String IGNORE_VERSION = "xupdate_ignore_version";
     private static final String PREFS_FILE = "xupdate_prefs";
 
@@ -123,14 +127,18 @@ public final class UpdateUtils {
         if (versionName1.equals(versionName2)) {
             return 0;
         }
-        String[] versionArray1 = versionName1.split("\\.");//注意此处为正则匹配，不能用"."；
+        //注意此处为正则匹配，不能用"."；
+        String[] versionArray1 = versionName1.split("\\.");
         String[] versionArray2 = versionName2.split("\\.");
         int idx = 0;
-        int minLength = Math.min(versionArray1.length, versionArray2.length);//取最小长度值
+        //取最小长度值
+        int minLength = Math.min(versionArray1.length, versionArray2.length);
         int diff = 0;
         while (idx < minLength
-                && (diff = versionArray1[idx].length() - versionArray2[idx].length()) == 0//先比较长度
-                && (diff = versionArray1[idx].compareTo(versionArray2[idx])) == 0) {//再比较字符
+                //先比较长度
+                && (diff = versionArray1[idx].length() - versionArray2[idx].length()) == 0
+                && (diff = versionArray1[idx].compareTo(versionArray2[idx])) == 0) {
+            //再比较字符
             ++idx;
         }
         //如果已经分出大小，则直接返回，如果未分出大小，则再比较位数，有子版本的为大；
@@ -164,7 +172,6 @@ public final class UpdateUtils {
         return new Gson().toJson(src);
     }
 
-    //=============显示====================//
     public static int dip2px(int dip, Context context) {
         return (int) (dip * getDensity(context) + 0.5f);
     }
@@ -266,14 +273,14 @@ public final class UpdateUtils {
     private static String byte2FitMemorySize(final long byteNum) {
         if (byteNum <= 0) {
             return "";
-        } else if (byteNum < 1024) {
+        } else if (byteNum < KB) {
             return String.format("%.1fB", (double) byteNum);
-        } else if (byteNum < 1048576) {
-            return String.format("%.1fKB", (double) byteNum / 1024);
-        } else if (byteNum < 1073741824) {
-            return String.format("%.1fMB", (double) byteNum / 1048576);
+        } else if (byteNum < MB) {
+            return String.format("%.1fKB", (double) byteNum / KB);
+        } else if (byteNum < GB) {
+            return String.format("%.1fMB", (double) byteNum / MB);
         } else {
-            return String.format("%.1fGB", (double) byteNum / 1073741824);
+            return String.format("%.1fGB", (double) byteNum / GB);
         }
     }
 

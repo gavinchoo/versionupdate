@@ -71,7 +71,6 @@ public class ZipUtils {
         ZipInputStream inZip = new ZipInputStream(new FileInputStream(zipFileString));
         ZipEntry zipEntry;
         while ((zipEntry = inZip.getNextEntry()) != null) {
-            //szName = zipEntry.getName();
             if (zipEntry.isDirectory()) {
                 //获取部件的文件夹名
                 szName = szName.substring(0, szName.length() - 1);
@@ -145,7 +144,7 @@ public class ZipUtils {
             zipOutputSteam.closeEntry();
         } else {
             //文件夹
-            String fileList[] = file.list();
+            String[] fileList = file.list();
             //没有子文件和压缩
             if (fileList.length <= 0) {
                 ZipEntry zipEntry = new ZipEntry(fileString + File.separator);

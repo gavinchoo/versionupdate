@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.proxy.IUpdateChecker;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
@@ -15,11 +16,11 @@ import com.foodsecurity.xupdate.service.DownloadService;
 import java.util.List;
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_JSON_EMPTY;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NET_REQUEST;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_PARSE;
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.CHECK_UPDATING;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_JSON_EMPTY;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NET_REQUEST;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_PARSE;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_UPDATING;
 
 /**
  * 默认版本更新检查者
@@ -97,7 +98,12 @@ public class BundleUpdateChecker implements IUpdateChecker {
      */
     private void onCheckError(@NonNull IUpdateProxy updateProxy, Throwable error) {
         updateProxy.onAfterCheck();
-        UpdateFacade.onUpdateError(CHECK_NET_REQUEST, error.getMessage());
+
+        if (error instanceof UpdateException) {
+            UpdateFacade.onUpdateError((UpdateException) error);
+        } else {
+            UpdateFacade.onUpdateError(CHECK_NET_REQUEST, error.getMessage());
+        }
     }
 
     @Override

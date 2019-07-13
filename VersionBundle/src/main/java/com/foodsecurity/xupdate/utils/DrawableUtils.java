@@ -197,7 +197,7 @@ public final class DrawableUtils {
      * @param color        颜色
      */
     public static void setTextStrokeTheme(TextView textView, int strokeWidth, int cornerRadius, int color) {
-        textView.setBackgroundDrawable(getStrokeSolidDrawable(cornerRadius, strokeWidth, color, Color.WHITE));
+        textView.setBackground(getStrokeSolidDrawable(cornerRadius, strokeWidth, color, Color.WHITE));
         textView.setTextColor(ColorUtils.getColorStateList(Color.WHITE, color));
         textView.getPaint().setFlags(Paint.FAKE_BOLD_TEXT_FLAG);
     }
@@ -240,7 +240,7 @@ public final class DrawableUtils {
      * @param color        颜色
      */
     public static void setTextSolidTheme(TextView textView, int strokeWidth, int cornerRadius, int color) {
-        textView.setBackgroundDrawable(getSolidStrokeDrawable(cornerRadius, strokeWidth, Color.WHITE, color));
+        textView.setBackground(getSolidStrokeDrawable(cornerRadius, strokeWidth, Color.WHITE, color));
         textView.setTextColor(ColorUtils.getColorStateList(color, Color.WHITE));
         textView.getPaint().setFlags(Paint.FAKE_BOLD_TEXT_FLAG);
     }

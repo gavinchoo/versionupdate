@@ -52,6 +52,34 @@ public class VersionEntity {
      */
     private String name;
 
+    /**
+     * 是否自动下载安装
+     */
+    private boolean isSilent;
+
+    /**
+     * 是否可以忽略升级
+     */
+    private boolean isIgnorable;
+
+    public boolean isIgnorable() {
+        return isIgnorable;
+    }
+
+    public VersionEntity setIgnorable(boolean ignorable) {
+        isIgnorable = ignorable;
+        return this;
+    }
+
+    public boolean isSilent() {
+        return isSilent;
+    }
+
+    public VersionEntity setSilent(boolean silent) {
+        isSilent = silent;
+        return this;
+    }
+
     public int getUpdateStatus() {
         return updateStatus;
     }
@@ -164,6 +192,8 @@ public class VersionEntity {
                 ", fileName='" + fileName + '\'' +
                 ", alias='" + alias + '\'' +
                 ", fileSize=" + fileSize +
+                ", isIgnorable=" + isIgnorable +
+                ", isSilent=" + isSilent +
                 '}';
     }
 }

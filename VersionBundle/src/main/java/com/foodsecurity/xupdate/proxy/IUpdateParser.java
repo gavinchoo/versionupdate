@@ -18,8 +18,15 @@ public interface IUpdateParser {
      *
      * @param json
      * @return
+     * @throws Exception
      */
     UpdateEntity parseJson(String json) throws Exception;
 
+    /**
+     * 将请求的json结果解析为版本更新信息实体
+     * @param json
+     * @return
+     * @throws Exception
+     */
     List<UpdateEntity> parseBundleJson(String json) throws Exception;
 }

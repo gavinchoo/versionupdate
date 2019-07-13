@@ -18,18 +18,24 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.R;
-import com.foodsecurity.xupdate.XUpdate;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 
 import java.io.File;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
-import static com.foodsecurity.xupdate.entity.UpdateError.ERROR.DOWNLOAD_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_NET_REQUEST;
+import static com.foodsecurity.xupdate.exception.UpdateException.Error.DOWNLOAD_FAILED_UNKNOW_HOST;
 
 /**
  * APK下载服务
@@ -57,9 +63,9 @@ public class DownloadService extends Service {
      * @param connection
      */
     public static void bindService(ServiceConnection connection) {
-        Intent intent = new Intent(XUpdate.getContext(), DownloadService.class);
-        XUpdate.getContext().startService(intent);
-        XUpdate.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(Xupdate.getContext(), DownloadService.class);
+        Xupdate.getContext().startService(intent);
+        Xupdate.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
         mIsRunning = true;
     }
 
@@ -143,15 +149,6 @@ public class DownloadService extends Service {
     private void initNotification() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
-            //设置绕过免打扰模式
-//            channel.setBypassDnd(false);
-//            //检测是否绕过免打扰模式
-//            channel.canBypassDnd();
-//            //设置在锁屏界面上显示这条通知
-//            channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
-//            channel.setLightColor(Color.GREEN);
-//            channel.setShowBadge(true);
-//            channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             channel.enableVibration(false);
             channel.enableLights(false);
 
@@ -352,8 +349,16 @@ public class DownloadService extends Service {
             if (mIsCancel) {
                 return;
             }
+            if (throwable instanceof UnknownHostException || throwable instanceof ConnectException) {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED_NET_REQUEST, throwable.getMessage());
+            } else if (throwable instanceof SocketTimeoutException) {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED_UNKNOW_HOST, throwable.getMessage());
+            } else if (throwable instanceof UpdateException) {
+                UpdateFacade.onUpdateError((UpdateException) throwable);
+            } else {
+                UpdateFacade.onUpdateError(DOWNLOAD_FAILED, throwable.getMessage());
+            }
 
-            UpdateFacade.onUpdateError(DOWNLOAD_FAILED, throwable.getMessage());
             //App前台运行
             if (mOnFileDownloadListener != null) {
                 mOnFileDownloadListener.onError(throwable);

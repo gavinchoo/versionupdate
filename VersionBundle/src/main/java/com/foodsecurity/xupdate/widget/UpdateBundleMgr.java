@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
+import com.foodsecurity.xupdate.logs.UpdateLog;
+import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
 
@@ -38,6 +40,11 @@ public class UpdateBundleMgr {
      */
     public static final String BUNDLE_STATUS_INSTALLED_NO_VERSION = "installed_no_version_info";
 
+    /**
+     * 插件未安装，检测版本信息失败了
+     */
+    public static final String BUNDLE_STATUS_NOT_INSTALL_NO_VERSION = "not_install_no_version_info";
+
     private static UpdateBundleMgr sInstance;
 
     /**
@@ -52,6 +59,8 @@ public class UpdateBundleMgr {
      * 提示器参数信息
      */
     private PromptEntity mPromptEntity;
+
+    private IUpdateBundlePrompter mUpdatePrompter;
 
     public static UpdateBundleMgr get() {
         if (sInstance == null) {
@@ -76,12 +85,19 @@ public class UpdateBundleMgr {
         setUpdateEntity(updateEntity);
     }
 
-    public void setIUpdateProxy(IUpdateProxy updateProxy) {
+    public UpdateBundleMgr setIUpdateProxy(IUpdateProxy updateProxy) {
         this.mIUpdateProxy = updateProxy;
+        return this;
     }
 
-    public void setUpdateEntity(List<UpdateEntity> updateEntity) {
+    public UpdateBundleMgr setUpdatePrompter(IUpdateBundlePrompter updatePrompter) {
+        this.mUpdatePrompter = updatePrompter;
+        return this;
+    }
+
+    public UpdateBundleMgr setUpdateEntity(List<UpdateEntity> updateEntity) {
         this.mUpdateEntity = updateEntity;
+        return this;
     }
 
     public void setPromptEntity(PromptEntity promptEntity) {
@@ -103,8 +119,12 @@ public class UpdateBundleMgr {
             return true;
         }
 
+        if (BUNDLE_STATUS_NOT_INSTALL_NO_VERSION.equals(bundleStatus)) {
+            return false;
+        }
+
         if (TextUtils.isEmpty(newUpdate.getApkCacheDir())) {
-            newUpdate.setApkCacheDir(getBundlesRootPath());
+            newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPath());
         }
         mIUpdateProxy.setUpdateEntity(newUpdate);
         if (BUNDLE_STATUS_NOT_INSTALL.equals(bundleStatus)) {
@@ -115,8 +135,17 @@ public class UpdateBundleMgr {
         return false;
     }
 
+    public boolean isInstalled(String alias) {
+        UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
+        return null != localUpdate;
+    }
+
     public String getBundleStatus(String alias, UpdateEntity newUpdate) {
         UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
+        if (null == localUpdate && null == newUpdate) {
+            return BUNDLE_STATUS_NOT_INSTALL_NO_VERSION;
+        }
+
         if (null == localUpdate) {
             return BUNDLE_STATUS_NOT_INSTALL;
         }
@@ -170,7 +199,7 @@ public class UpdateBundleMgr {
                         localUpdate.getVersionName().replace(".", ""));
                 if (localVersionCode != newVersionCode) {
 
-                    File file = new File(getBundlesRootPath() +
+                    File file = new File(UpdateFacade.getBundlesRootPath() +
                             File.separator + localUpdate.getAlias() + "_" + localUpdate.getVersionName());
                     if (null != file && file.exists()) {
                         deleteDirWihtFile(file);
@@ -199,7 +228,7 @@ public class UpdateBundleMgr {
     public List<UpdateEntity> getLocalBundleVersionInfo() {
         List<UpdateEntity> localVersionInfo = new ArrayList<>();
 
-        File rootPath = new File(getBundlesRootPath());
+        File rootPath = new File(UpdateFacade.getBundlesRootPath());
         File[] bundles = rootPath.listFiles();
         if (null == bundles) {
             return localVersionInfo;
@@ -218,17 +247,26 @@ public class UpdateBundleMgr {
                 updateEntity.setVersionName(bundleVersion);
             } else {
                 updateEntity.setAlias(bundle);
+
+                // 文件夹上没有带版本号，检查*.json文件版本号
+                File bundlePath = new File(UpdateFacade.getBundlesRootPath() + File.separator + bundle);
+                File[] bundleFiles = bundlePath.listFiles();
+                if (null != bundleFiles) {
+                    for (int j = 0; j < bundleFiles.length; j++) {
+                        String fileName = bundleFiles[j].getName();
+                        if (fileName.contains(".json")) {
+                            updateEntity.setVersionName(fileName.replace(".json", ""));
+                            break;
+                        }
+                    }
+                }
             }
 
             updateEntity.setFileName(bundle);
             localVersionInfo.add(updateEntity);
         }
-
+        UpdateLog.i("获取本地插件版本信息：" + localVersionInfo.toString());
         return localVersionInfo;
-    }
-
-    public String getBundlesRootPath() {
-        return mIUpdateProxy.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
     }
 
     /**
@@ -238,12 +276,16 @@ public class UpdateBundleMgr {
 
         @Override
         public void onStart() {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onStart(mIUpdateProxy.getUpdateEntity());
+            }
         }
 
         @Override
         public void onProgress(long total, float progress) {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onProgress(mIUpdateProxy.getUpdateEntity(), progress);
+            }
         }
 
         @Override
@@ -251,12 +293,17 @@ public class UpdateBundleMgr {
             //返回true，自动进行apk安装
             UpdateFacade.startInstallBundle(mIUpdateProxy.getContext(), file);
             removeOldVersionBundle(mIUpdateProxy.getUpdateEntity());
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onCompleted(mIUpdateProxy.getUpdateEntity());
+            }
             return false;
         }
 
         @Override
         public void onError(Throwable throwable) {
-
+            if (null != mUpdatePrompter) {
+                mUpdatePrompter.onError(mIUpdateProxy.getUpdateEntity(), throwable);
+            }
         }
     };
 }
