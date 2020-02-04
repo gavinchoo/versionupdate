@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.BundleVersionResult;
 import com.foodsecurity.xupdate.entity.ApkVersionResult;
+import com.foodsecurity.xupdate.entity.PluginVersionEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.entity.VersionEntity;
 import com.foodsecurity.xupdate.proxy.IUpdateParser;
@@ -59,12 +60,11 @@ public class DefaultUpdateParser implements IUpdateParser {
         if (!TextUtils.isEmpty(json)) {
             BundleVersionResult checkResult = UpdateUtils.fromJson(json, BundleVersionResult.class);
             if (checkResult != null && checkResult.isOk()) {
-                List<VersionEntity> versionEntities = checkResult.getData();
+                List<PluginVersionEntity> versionEntities = checkResult.getData();
                 if (null != versionEntities && versionEntities.size() > 0) {
                     List<UpdateEntity> updateEntities = new ArrayList<>();
                     for (int i = 0; i < versionEntities.size(); i++) {
-                        VersionEntity versionEntity = versionEntities.get(i);
-
+                        PluginVersionEntity versionEntity = versionEntities.get(i);
                         UpdateEntity updateEntity = new UpdateEntity();
                         if (versionEntity.getUpdateStatus() == ApkVersionResult.NO_NEW_VERSION) {
                             updateEntity.setHasUpdate(false);
@@ -79,7 +79,7 @@ public class DefaultUpdateParser implements IUpdateParser {
                                     .setSize(versionEntity.getFileInfo().getSize())
                                     .setFileName(versionEntity.getFileInfo().getName())
                                     .setMd5(versionEntity.getFileInfo().getMd5())
-                                    .setAlias(versionEntity.getAlias())
+                                    .setAlias(versionEntity.getPluginAlias())
                                     .setVersionCode(versionEntity.getVersionCode())
                                     .setVersionName(versionEntity.getVersionName());
                         }
