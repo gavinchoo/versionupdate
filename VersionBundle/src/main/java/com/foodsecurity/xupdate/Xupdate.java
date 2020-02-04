@@ -366,8 +366,13 @@ public class Xupdate {
         return UpdateFacade.canOpenBundle(alias);
     }
 
-    public boolean isInstalled(String alias) {
-        return UpdateFacade.isInstalled(alias);
+    public boolean isInstalled(String alias, int type) {
+        if (type == UpdateFacade.PLUGIN_TYPE_NATIVE) {
+            return UpdateFacade.isInstalledNative(alias);
+        } else if (type == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+            return UpdateFacade.isInstalledH5(alias);
+        }
+        return true;
     }
 
     public void updateBundlesVersion(Context context, UpdateEntity entity) {

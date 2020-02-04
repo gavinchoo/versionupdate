@@ -12,7 +12,7 @@ public class VersionEntity {
     /**
      * 最新版本号[根据版本号来判别是否需要升级]
      */
-    private String versionCode;
+    private int versionCode;
     /**
      * 最新APP版本的名称[用于展示的版本名]
      */
@@ -24,24 +24,14 @@ public class VersionEntity {
     /**
      * APP变更的内容
      */
-    private String modifyContent;
+    private String updateContent;
     /**
      * 下载地址
      */
     private String downloadUrl;
-    /**
-     * Apk MD5值
-     */
-    private String md5;
-    /**
-     * Apk大小【单位：KB】
-     */
-    private long fileSize;
 
-    /**
-     * 文件名称
-     */
-    private String fileName;
+    private FileEntity fileInfo;
+
     /**
      * 别名
      */
@@ -50,7 +40,7 @@ public class VersionEntity {
     /**
      * 产品名称
      */
-    private String name;
+    private String productName;
 
     /**
      * 是否自动下载安装
@@ -62,121 +52,120 @@ public class VersionEntity {
      */
     private boolean isIgnorable;
 
-    public boolean isIgnorable() {
-        return isIgnorable;
-    }
-
-    public VersionEntity setIgnorable(boolean ignorable) {
-        isIgnorable = ignorable;
-        return this;
-    }
-
-    public boolean isSilent() {
-        return isSilent;
-    }
-
-    public VersionEntity setSilent(boolean silent) {
-        isSilent = silent;
-        return this;
-    }
+    private boolean forceUpdate;
+    private boolean wifiUpdate;
+    private boolean timeRemind;
 
     public int getUpdateStatus() {
         return updateStatus;
     }
 
-    public VersionEntity setRequireUpgrade(int updateStatus) {
+    public void setUpdateStatus(int updateStatus) {
         this.updateStatus = updateStatus;
-        return this;
     }
 
-    public String getUploadTime() {
-        return uploadTime;
-    }
-
-    public VersionEntity setUploadTime(String uploadTime) {
-        this.uploadTime = uploadTime;
-        return this;
-    }
-
-    public String getVersionCode() {
+    public int getVersionCode() {
         return versionCode;
     }
 
-    public VersionEntity setVersionCode(String versionCode) {
+    public void setVersionCode(int versionCode) {
         this.versionCode = versionCode;
-        return this;
     }
 
     public String getVersionName() {
         return versionName;
     }
 
-    public VersionEntity setVersionName(String versionName) {
+    public void setVersionName(String versionName) {
         this.versionName = versionName;
-        return this;
     }
 
-    public String getModifyContent() {
-        return modifyContent;
+    public String getUploadTime() {
+        return uploadTime;
     }
 
-    public VersionEntity setModifyContent(String modifyContent) {
-        this.modifyContent = modifyContent;
-        return this;
+    public void setUploadTime(String uploadTime) {
+        this.uploadTime = uploadTime;
+    }
+
+    public String getUpdateContent() {
+        return updateContent;
+    }
+
+    public void setUpdateContent(String updateContent) {
+        this.updateContent = updateContent;
     }
 
     public String getDownloadUrl() {
         return downloadUrl;
     }
 
-    public VersionEntity setDownloadUrl(String downloadUrl) {
+    public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
-        return this;
     }
 
-    public String getMd5() {
-        return md5;
+    public FileEntity getFileInfo() {
+        return fileInfo;
     }
 
-    public VersionEntity setMd5(String md5) {
-        this.md5 = md5;
-        return this;
-    }
-
-    public long getFileSize() {
-        return fileSize;
-    }
-
-    public VersionEntity setFileSize(long fileSize) {
-        this.fileSize = fileSize;
-        return this;
-    }
-
-    public VersionEntity setAlias(String alias) {
-        this.alias = alias;
-        return this;
+    public void setFileInfo(FileEntity fileInfo) {
+        this.fileInfo = fileInfo;
     }
 
     public String getAlias() {
         return alias;
     }
 
-    public VersionEntity setFileName(String fileName) {
-        this.fileName = fileName;
-        return this;
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getProductName() {
+        return productName;
     }
 
-    public VersionEntity setName(String name) {
-        this.name = name;
-        return this;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public String getName() {
-        return name;
+    public boolean isSilent() {
+        return isSilent;
+    }
+
+    public void setSilent(boolean silent) {
+        isSilent = silent;
+    }
+
+    public boolean isIgnorable() {
+        return isIgnorable;
+    }
+
+    public void setIgnorable(boolean ignorable) {
+        isIgnorable = ignorable;
+    }
+
+    public boolean isForceUpdate() {
+        return forceUpdate;
+    }
+
+    public void setForceUpdate(boolean forceUpdate) {
+        this.forceUpdate = forceUpdate;
+    }
+
+    public boolean isWifiUpdate() {
+        return wifiUpdate;
+    }
+
+    public void setWifiUpdate(boolean wifiUpdate) {
+        this.wifiUpdate = wifiUpdate;
+    }
+
+    public boolean isTimeRemind() {
+        return timeRemind;
+    }
+
+    public void setTimeRemind(boolean timeRemind) {
+        this.timeRemind = timeRemind;
     }
 
     @Override
@@ -186,12 +175,9 @@ public class VersionEntity {
                 ", versionCode=" + versionCode +
                 ", versionName='" + versionName + '\'' +
                 ", uploadTime='" + uploadTime + '\'' +
-                ", modifyContent='" + modifyContent + '\'' +
+                ", modifyContent='" + updateContent + '\'' +
                 ", downloadUrl='" + downloadUrl + '\'' +
-                ", md5='" + md5 + '\'' +
-                ", fileName='" + fileName + '\'' +
                 ", alias='" + alias + '\'' +
-                ", fileSize=" + fileSize +
                 ", isIgnorable=" + isIgnorable +
                 ", isSilent=" + isSilent +
                 '}';

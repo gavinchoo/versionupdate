@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.DownloadEntity;
+import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.listener.OnInstallListener;
 import com.foodsecurity.xupdate.utils.ApkInstallUtils;
 
@@ -24,7 +25,7 @@ import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_F
 public class DefaultApkInstallListener implements OnInstallListener {
 
     @Override
-    public boolean onInstall(@NonNull Context context, @NonNull File apkFile, @NonNull DownloadEntity downloadEntity) {
+    public boolean onInstall(@NonNull Context context, @NonNull File apkFile, UpdateEntity updateEntity, @NonNull DownloadEntity downloadEntity) {
         try {
             return downloadEntity.isApkFileValid(apkFile) && ApkInstallUtils.install(context, apkFile);
         } catch (IOException e) {

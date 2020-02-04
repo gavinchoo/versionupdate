@@ -17,16 +17,6 @@ import java.io.InputStream;
  */
 public class BundleInstallUtils {
 
-    public static boolean install(@NonNull File bundleFile) {
-        try {
-            ZipUtils.unZipFolder(bundleFile.getPath(), bundleFile.getParent());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     /**
      * 从assets目录中复制整个文件夹内容,考贝到 /data/data/包名/files/目录中
      *

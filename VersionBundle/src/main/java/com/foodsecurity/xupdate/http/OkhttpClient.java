@@ -5,6 +5,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 
 import com.foodsecurity.xupdate.exception.UpdateException;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +24,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -97,14 +99,7 @@ public class OkhttpClient {
     }
 
     public void post(@NonNull String url, @NonNull Map<String, String> params, final SimpleCallBack callBack) {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (null != params) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.add(entry.getKey(), entry.getValue());
-            }
-        }
-        RequestBody body = builder.build();
-
+        RequestBody body = RequestBody.create(MediaType.parse("application/json:charset=UTF-8"), new Gson().toJson(params));
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)

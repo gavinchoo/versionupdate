@@ -190,11 +190,6 @@ public class UpdateManager implements IUpdateProxy {
         update();
     }
 
-    @Override
-    public boolean canOpenBundle(String alias) {
-        return UpdateFacade.canOpenBundle(alias);
-    }
-
     /**
      * 执行版本更新操作
      */

@@ -4,12 +4,17 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
+import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.logs.UpdateLog;
+import com.foodsecurity.xupdate.plugin.PluginBase;
+import com.foodsecurity.xupdate.plugin.impl.PluginH5;
+import com.foodsecurity.xupdate.plugin.impl.PluginNative;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
+import com.qihoo360.replugin.RePlugin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,6 +65,9 @@ public class UpdateBundleMgr {
      */
     private PromptEntity mPromptEntity;
 
+    private PluginBase mPluginH5;
+    private PluginBase mPluginNative;
+
     private IUpdateBundlePrompter mUpdatePrompter;
 
     public static UpdateBundleMgr get() {
@@ -71,6 +79,11 @@ public class UpdateBundleMgr {
             }
         }
         return sInstance;
+    }
+
+    public UpdateBundleMgr() {
+        mPluginH5 = new PluginH5();
+        mPluginNative = new PluginNative();
     }
 
     /**
@@ -104,6 +117,34 @@ public class UpdateBundleMgr {
         this.mPromptEntity = promptEntity;
     }
 
+    public PluginEntity installH5(String alias, String path){
+        return mPluginH5.install(alias, path);
+    }
+
+    public PluginEntity installNative(String alias, String path){
+        return mPluginNative.install(alias, path);
+    }
+
+    public boolean isInstalledH5(String alias) {
+        return mPluginH5.isPluginInstalled(alias);
+    }
+
+    public boolean isInstalledNative(String alias) {
+        return mPluginNative.isPluginInstalled(alias);
+    }
+
+    public PluginEntity getPluginInfo(String name){
+        PluginEntity pluginInfo = mPluginNative.getPluginInfo(name);
+        if (null == pluginInfo) {
+            pluginInfo = mPluginH5.getPluginInfo(name);
+        }
+        return pluginInfo;
+    }
+
+    public boolean canOpenBundle(String alias) {
+        return canOpen(alias);
+    }
+
     public boolean canOpen(String alias) {
         UpdateEntity newUpdate = getNewVersionInfoByAlias(alias);
         return canOpen(alias, newUpdate);
@@ -124,7 +165,11 @@ public class UpdateBundleMgr {
         }
 
         if (TextUtils.isEmpty(newUpdate.getApkCacheDir())) {
-            newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPath());
+            if (newUpdate.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+                newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPathH5());
+            } else {
+                newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPathNative());
+            }
         }
         mIUpdateProxy.setUpdateEntity(newUpdate);
         if (BUNDLE_STATUS_NOT_INSTALL.equals(bundleStatus)) {
@@ -135,13 +180,14 @@ public class UpdateBundleMgr {
         return false;
     }
 
-    public boolean isInstalled(String alias) {
-        UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
-        return null != localUpdate;
-    }
-
     public String getBundleStatus(String alias, UpdateEntity newUpdate) {
-        UpdateEntity localUpdate = getLocalVersionInfoByAlias(alias);
+        PluginEntity localUpdate;
+        if (newUpdate.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+            localUpdate = mPluginH5.getPluginInfo(alias);
+        } else {
+            localUpdate = mPluginNative.getPluginInfo(alias);
+        }
+
         if (null == localUpdate && null == newUpdate) {
             return BUNDLE_STATUS_NOT_INSTALL_NO_VERSION;
         }
@@ -154,15 +200,11 @@ public class UpdateBundleMgr {
             return BUNDLE_STATUS_INSTALLED_NO_VERSION;
         }
 
-        int localVersionCode = Integer.parseInt(
-                localUpdate.getVersionName().replace(".", ""));
-        int newVersionCode = Integer.parseInt(
-                newUpdate.getVersionName().replace(".", ""));
-
+        int localVersionCode = localUpdate.getVersionCode();
+        int newVersionCode = newUpdate.getVersionCode();
         if (localVersionCode < newVersionCode) {
             return BUNDLE_STATUS_HAS_NEW_VERSION;
         }
-
         return BUNDLE_STATUS_DEFAULT;
     }
 
@@ -176,97 +218,6 @@ public class UpdateBundleMgr {
             }
         }
         return null;
-    }
-
-    public UpdateEntity getLocalVersionInfoByAlias(String alias) {
-        List<UpdateEntity> localVersionInfo = getLocalBundleVersionInfo();
-        for (int i = 0; i < localVersionInfo.size(); i++) {
-            if (localVersionInfo.get(i).getAlias().equals(alias)) {
-                return localVersionInfo.get(i);
-            }
-        }
-        return null;
-    }
-
-    public void removeOldVersionBundle(UpdateEntity newUpdate) {
-        List<UpdateEntity> localVersionInfo = getLocalBundleVersionInfo();
-        int newVersionCode = Integer.parseInt(
-                newUpdate.getVersionName().replace(".", ""));
-        for (int i = 0; i < localVersionInfo.size(); i++) {
-            UpdateEntity localUpdate = localVersionInfo.get(i);
-            if (localUpdate.getAlias().equals(newUpdate.getAlias())) {
-                int localVersionCode = Integer.parseInt(
-                        localUpdate.getVersionName().replace(".", ""));
-                if (localVersionCode != newVersionCode) {
-
-                    File file = new File(UpdateFacade.getBundlesRootPath() +
-                            File.separator + localUpdate.getAlias() + "_" + localUpdate.getVersionName());
-                    if (null != file && file.exists()) {
-                        deleteDirWihtFile(file);
-                    }
-                }
-            }
-        }
-    }
-
-    public static void deleteDirWihtFile(File dir) {
-        if (dir == null || !dir.exists() || !dir.isDirectory()) {
-            return;
-        }
-        for (File file : dir.listFiles()) {
-            if (file.isFile()) {
-                // 删除所有文件
-                file.delete();
-            } else if (file.isDirectory()) {
-                // 递规的方式删除文件夹
-                deleteDirWihtFile(file);
-            }
-        }
-        dir.delete();// 删除目录本身
-    }
-
-    public List<UpdateEntity> getLocalBundleVersionInfo() {
-        List<UpdateEntity> localVersionInfo = new ArrayList<>();
-
-        File rootPath = new File(UpdateFacade.getBundlesRootPath());
-        File[] bundles = rootPath.listFiles();
-        if (null == bundles) {
-            return localVersionInfo;
-        }
-        for (int i = 0; i < bundles.length; i++) {
-            if (!bundles[i].isDirectory()) {
-                continue;
-            }
-            UpdateEntity updateEntity = new UpdateEntity();
-            String bundle = bundles[i].getName();
-            if (bundle.length() > 0 && bundle.indexOf("_") != -1) {
-                String bundleAlias = bundle.substring(0, bundle.lastIndexOf("_"));
-                updateEntity.setAlias(bundleAlias);
-
-                String bundleVersion = bundle.substring(bundle.lastIndexOf("_") + 1, bundle.length());
-                updateEntity.setVersionName(bundleVersion);
-            } else {
-                updateEntity.setAlias(bundle);
-
-                // 文件夹上没有带版本号，检查*.json文件版本号
-                File bundlePath = new File(UpdateFacade.getBundlesRootPath() + File.separator + bundle);
-                File[] bundleFiles = bundlePath.listFiles();
-                if (null != bundleFiles) {
-                    for (int j = 0; j < bundleFiles.length; j++) {
-                        String fileName = bundleFiles[j].getName();
-                        if (fileName.contains(".json")) {
-                            updateEntity.setVersionName(fileName.replace(".json", ""));
-                            break;
-                        }
-                    }
-                }
-            }
-
-            updateEntity.setFileName(bundle);
-            localVersionInfo.add(updateEntity);
-        }
-        UpdateLog.i("获取本地插件版本信息：" + localVersionInfo.toString());
-        return localVersionInfo;
     }
 
     /**
@@ -291,8 +242,7 @@ public class UpdateBundleMgr {
         @Override
         public boolean onCompleted(File file) {
             //返回true，自动进行apk安装
-            UpdateFacade.startInstallBundle(mIUpdateProxy.getContext(), file);
-            removeOldVersionBundle(mIUpdateProxy.getUpdateEntity());
+            UpdateFacade.startInstallBundle(mIUpdateProxy.getContext(), mIUpdateProxy.getUpdateEntity(), file);
             if (null != mUpdatePrompter) {
                 mUpdatePrompter.onCompleted(mIUpdateProxy.getUpdateEntity());
             }

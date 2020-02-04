@@ -15,87 +15,71 @@ import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
  * @author zhujianwei134
  * @since 2018/6/29 下午9:33
  */
-public class UpdateEntity implements Parcelable {
+public class UpdateEntity extends PluginEntity implements Parcelable {
     //===========是否可以升级=============//
     /**
      * 是否有新版本
      */
-    private boolean mHasUpdate;
+    private boolean hasUpdate;
 
     /**
      * 是否强制安装：不安装无法使用app
      */
-    private boolean mIsForce;
+    private boolean isForce;
 
     /**
      * 是否可忽略该版本
      */
-    private boolean mIsIgnorable;
+    private boolean isIgnorable;
 
     //===========升级的信息=============//
-    /**
-     * 版本号
-     */
-    private String mVersionCode;
-    /**
-     * 版本名称
-     */
-    private String mVersionName;
-
-    /**
-     * 别名
-     */
-    private String mAlias;
 
     /**
      * 文件名称
      */
-    private String mFileName;
+    private String fileName;
 
-    /**
-     * 产品名称
-     */
-    private String mName;
+
 
     /**
      * 更新内容
      */
-    private String mUpdateContent;
+    private String updateContent;
 
     /**
      * 下载信息实体
      */
-    private DownloadEntity mDownloadEntity;
+    private DownloadEntity downloadEntity;
 
     //============升级行为============//
     /**
      * 是否静默下载：有新版本时不提示直接下载
      */
-    private boolean mIsSilent;
+    private boolean isSilent;
     /**
      * 是否下载完成后自动安装[默认是true]
      */
-    private boolean mIsAutoInstall;
+    private boolean isAutoInstall;
 
     public UpdateEntity() {
-        mVersionName = "unknown_version";
-        mDownloadEntity = new DownloadEntity();
-        mIsAutoInstall = true;
+        versionName = "unknown_version";
+        downloadEntity = new DownloadEntity();
+        isAutoInstall = true;
     }
 
     protected UpdateEntity(Parcel in) {
-        mHasUpdate = in.readByte() != 0;
-        mIsForce = in.readByte() != 0;
-        mIsIgnorable = in.readByte() != 0;
-        mVersionCode = in.readString();
-        mVersionName = in.readString();
-        mAlias = in.readString();
-        mFileName = in.readString();
-        mName = in.readString();
-        mUpdateContent = in.readString();
-        mDownloadEntity = in.readParcelable(DownloadEntity.class.getClassLoader());
-        mIsSilent = in.readByte() != 0;
-        mIsAutoInstall = in.readByte() != 0;
+        hasUpdate = in.readByte() != 0;
+        isForce = in.readByte() != 0;
+        isIgnorable = in.readByte() != 0;
+        versionCode = in.readInt();
+        versionName = in.readString();
+        alias = in.readString();
+        fileName = in.readString();
+        name = in.readString();
+        updateContent = in.readString();
+        downloadEntity = in.readParcelable(DownloadEntity.class.getClassLoader());
+        isSilent = in.readByte() != 0;
+        isAutoInstall = in.readByte() != 0;
     }
 
     public static final Creator<UpdateEntity> CREATOR = new Creator<UpdateEntity>() {
@@ -111,55 +95,55 @@ public class UpdateEntity implements Parcelable {
     };
 
     public boolean isHasUpdate() {
-        return mHasUpdate;
+        return hasUpdate;
     }
 
     public UpdateEntity setHasUpdate(boolean hasUpdate) {
-        mHasUpdate = hasUpdate;
+        this.hasUpdate = hasUpdate;
         return this;
     }
 
     public boolean isForce() {
-        return mIsForce;
+        return isForce;
     }
 
     public UpdateEntity setForce(boolean force) {
         if (force) {
             //强制更新，不可以忽略
-            mIsIgnorable = false;
+            isIgnorable = false;
         }
-        mIsForce = force;
+        isForce = force;
         return this;
     }
 
     public boolean isIgnorable() {
-        return mIsIgnorable;
+        return isIgnorable;
     }
 
     public UpdateEntity setIsIgnorable(boolean isIgnorable) {
         if (isIgnorable) {
             //可忽略的，不能是强制更新
-            mIsForce = false;
+            isForce = false;
         }
-        mIsIgnorable = isIgnorable;
+        this.isIgnorable = isIgnorable;
         return this;
     }
 
     public boolean isSilent() {
-        return mIsSilent;
+        return isSilent;
     }
 
     public UpdateEntity setIsSilent(boolean isSilent) {
-        mIsSilent = isSilent;
+        this.isSilent = isSilent;
         return this;
     }
 
     public boolean isAutoInstall() {
-        return mIsAutoInstall;
+        return isAutoInstall;
     }
 
     public UpdateEntity setIsAutoInstall(boolean isAutoInstall) {
-        mIsAutoInstall = isAutoInstall;
+        this.isAutoInstall = isAutoInstall;
         return this;
     }
 
@@ -170,8 +154,8 @@ public class UpdateEntity implements Parcelable {
      * @return
      */
     public UpdateEntity setApkCacheDir(String apkCacheDir) {
-        if (!TextUtils.isEmpty(apkCacheDir) && TextUtils.isEmpty(mDownloadEntity.getCacheDir())) {
-            mDownloadEntity.setCacheDir(apkCacheDir);
+        if (!TextUtils.isEmpty(apkCacheDir) && TextUtils.isEmpty(downloadEntity.getCacheDir())) {
+            downloadEntity.setCacheDir(apkCacheDir);
         }
         return this;
     }
@@ -184,107 +168,73 @@ public class UpdateEntity implements Parcelable {
     public void setIsAutoMode(boolean isAutoMode) {
         if (isAutoMode) {
             //自动下载
-            mIsSilent = true;
+            isSilent = true;
             //自动安装
-            mIsAutoInstall = true;
+            isAutoInstall = true;
             //自动模式下，默认下载进度条在通知栏显示
-            mDownloadEntity.setShowNotification(true);
+            downloadEntity.setShowNotification(true);
         }
     }
 
-    public String getVersionCode() {
-        return mVersionCode;
-    }
-
-    public UpdateEntity setVersionCode(String versionCode) {
-        mVersionCode = versionCode;
-        return this;
-    }
-
-    public String getVersionName() {
-        return mVersionName;
-    }
-
-    public UpdateEntity setVersionName(String versionName) {
-        mVersionName = versionName;
-        return this;
-    }
-
     public String getUpdateContent() {
-        return mUpdateContent;
+        return updateContent;
     }
 
     public UpdateEntity setUpdateContent(String updateContent) {
-        mUpdateContent = updateContent;
+        this.updateContent = updateContent;
         return this;
     }
 
     public String getDownloadUrl() {
-        return mDownloadEntity.getDownloadUrl();
+        return downloadEntity.getDownloadUrl();
     }
 
     public UpdateEntity setDownloadUrl(String downloadUrl) {
-        mDownloadEntity.setDownloadUrl(downloadUrl);
+        downloadEntity.setDownloadUrl(downloadUrl);
         return this;
     }
 
     public String getMd5() {
-        return mDownloadEntity.getMd5();
+        return downloadEntity.getMd5();
     }
 
     public UpdateEntity setMd5(String md5) {
-        mDownloadEntity.setMd5(md5);
+        downloadEntity.setMd5(md5);
         return this;
     }
 
     public long getSize() {
-        return mDownloadEntity.getSize();
+        return downloadEntity.getSize();
     }
 
     public UpdateEntity setSize(long size) {
-        mDownloadEntity.setSize(size);
+        downloadEntity.setSize(size);
         return this;
     }
 
-    public UpdateEntity setAlias(String alias) {
-        this.mAlias = alias;
-        return this;
-    }
 
-    public String getAlias() {
-        return mAlias;
-    }
 
     public UpdateEntity setFileName(String fileName) {
-        this.mFileName = fileName;
+        this.fileName = fileName;
         return this;
     }
 
     public String getFileName() {
-        return mFileName;
-    }
-
-    public UpdateEntity setName(String name) {
-        this.mName = name;
-        return this;
-    }
-
-    public String getName() {
-        return mName;
+        return fileName;
     }
 
     public String getApkCacheDir() {
-        return mDownloadEntity.getCacheDir();
+        return downloadEntity.getCacheDir();
     }
 
     public UpdateEntity setDownLoadEntity(@NonNull DownloadEntity downloadEntity) {
-        mDownloadEntity = downloadEntity;
+        this.downloadEntity = downloadEntity;
         return this;
     }
 
     @NonNull
     public DownloadEntity getDownLoadEntity() {
-        return mDownloadEntity;
+        return downloadEntity;
     }
 
     /**
@@ -304,18 +254,18 @@ public class UpdateEntity implements Parcelable {
     @Override
     public String toString() {
         return "UpdateEntity{" +
-                "mHasUpdate=" + mHasUpdate +
-                ", mIsForce=" + mIsForce +
-                ", mIsIgnorable=" + mIsIgnorable +
-                ", mVersionCode=" + mVersionCode +
-                ", mVersionName='" + mVersionName + '\'' +
-                ", mAlias='" + mAlias + '\'' +
-                ", mFileName='" + mFileName + '\'' +
-                ", mName='" + mName + '\'' +
-                ", mUpdateContent='" + mUpdateContent + '\'' +
-                ", mDownloadEntity=" + mDownloadEntity +
-                ", mIsSilent=" + mIsSilent +
-                ", mIsAutoInstall=" + mIsAutoInstall +
+                "hasUpdate=" + hasUpdate +
+                ", isForce=" + isForce +
+                ", isIgnorable=" + isIgnorable +
+                ", versionCode=" + versionCode +
+                ", versionName='" + versionName + '\'' +
+                ", alias='" + alias + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", name='" + name + '\'' +
+                ", updateContent='" + updateContent + '\'' +
+                ", downloadEntity=" + downloadEntity +
+                ", isSilent=" + isSilent +
+                ", isAutoInstall=" + isAutoInstall +
                 ", mIUpdateHttpService=" + mIUpdateHttpService +
                 '}';
     }
@@ -327,18 +277,18 @@ public class UpdateEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (mHasUpdate ? 1 : 0));
-        dest.writeByte((byte) (mIsForce ? 1 : 0));
-        dest.writeByte((byte) (mIsIgnorable ? 1 : 0));
-        dest.writeString(mVersionCode);
-        dest.writeString(mVersionName);
-        dest.writeString(mVersionName);
-        dest.writeString(mAlias);
-        dest.writeString(mFileName);
-        dest.writeString(mName);
-        dest.writeString(mUpdateContent);
-        dest.writeParcelable(mDownloadEntity, flags);
-        dest.writeByte((byte) (mIsSilent ? 1 : 0));
-        dest.writeByte((byte) (mIsAutoInstall ? 1 : 0));
+        dest.writeByte((byte) (hasUpdate ? 1 : 0));
+        dest.writeByte((byte) (isForce ? 1 : 0));
+        dest.writeByte((byte) (isIgnorable ? 1 : 0));
+        dest.writeInt(versionCode);
+        dest.writeString(versionName);
+        dest.writeString(versionName);
+        dest.writeString(alias);
+        dest.writeString(fileName);
+        dest.writeString(name);
+        dest.writeString(updateContent);
+        dest.writeParcelable(downloadEntity, flags);
+        dest.writeByte((byte) (isSilent ? 1 : 0));
+        dest.writeByte((byte) (isAutoInstall ? 1 : 0));
     }
 }

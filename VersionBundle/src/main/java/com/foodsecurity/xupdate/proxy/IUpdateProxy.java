@@ -44,14 +44,6 @@ public interface IUpdateProxy {
     void updateBundle();
 
     /**
-     * 判断插件是否可以打开
-     *
-     * @param alias 插件别名
-     * @return
-     */
-    boolean canOpenBundle(String alias);
-
-    /**
      * 版本检查之前
      */
     void onBeforeCheck();

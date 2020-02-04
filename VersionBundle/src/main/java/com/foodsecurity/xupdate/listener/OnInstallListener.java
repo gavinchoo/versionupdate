@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.foodsecurity.xupdate.entity.DownloadEntity;
+import com.foodsecurity.xupdate.entity.UpdateEntity;
 
 import java.io.File;
 
@@ -24,7 +25,7 @@ public interface OnInstallListener {
      * @param downloadEntity   文件下载信息
      * @return
      */
-    boolean onInstall(@NonNull Context context, @NonNull File apkFile, @NonNull DownloadEntity downloadEntity);
+    boolean onInstall(@NonNull Context context, @NonNull File apkFile, UpdateEntity updateEntity, @NonNull DownloadEntity downloadEntity);
 
     /**
      * apk安装完毕

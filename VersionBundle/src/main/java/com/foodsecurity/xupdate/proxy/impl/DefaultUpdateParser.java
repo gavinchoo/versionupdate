@@ -36,13 +36,13 @@ public class DefaultUpdateParser implements IUpdateParser {
 
                     updateEntity.setHasUpdate(true)
                             .setIsIgnorable(versionEntity.isIgnorable())
-                            .setUpdateContent(versionEntity.getModifyContent())
-                            .setVersionCode(versionEntity.getVersionCode())
-                            .setVersionName(versionEntity.getVersionName())
+                            .setUpdateContent(versionEntity.getUpdateContent())
                             .setDownloadUrl(versionEntity.getDownloadUrl())
-                            .setSize(versionEntity.getFileSize())
-                            .setFileName(versionEntity.getFileName())
-                            .setMd5(versionEntity.getMd5());
+                            .setSize(versionEntity.getFileInfo().getSize())
+                            .setFileName(versionEntity.getFileInfo().getName())
+                            .setMd5(versionEntity.getFileInfo().getMd5())
+                            .setVersionCode(versionEntity.getVersionCode())
+                            .setVersionName(versionEntity.getVersionName());
 
                     if (versionEntity.getUpdateStatus() == ApkVersionResult.HAVE_NEW_VERSION_FORCED_UPLOAD) {
                         updateEntity.setForce(true);
@@ -74,15 +74,14 @@ public class DefaultUpdateParser implements IUpdateParser {
                             }
                             updateEntity.setHasUpdate(true)
                                     .setIsSilent(versionEntity.isSilent())
-                                    .setUpdateContent(versionEntity.getModifyContent())
-                                    .setVersionCode(versionEntity.getVersionCode())
-                                    .setVersionName(versionEntity.getVersionName())
+                                    .setUpdateContent(versionEntity.getUpdateContent())
                                     .setDownloadUrl(versionEntity.getDownloadUrl())
-                                    .setSize(versionEntity.getFileSize())
-                                    .setFileName(versionEntity.getFileName())
+                                    .setSize(versionEntity.getFileInfo().getSize())
+                                    .setFileName(versionEntity.getFileInfo().getName())
+                                    .setMd5(versionEntity.getFileInfo().getMd5())
                                     .setAlias(versionEntity.getAlias())
-                                    .setName(versionEntity.getName())
-                                    .setMd5(versionEntity.getMd5());
+                                    .setVersionCode(versionEntity.getVersionCode())
+                                    .setVersionName(versionEntity.getVersionName());
                         }
                         updateEntities.add(updateEntity);
                     }
@@ -100,12 +99,16 @@ public class DefaultUpdateParser implements IUpdateParser {
      * @return
      */
     private VersionEntity doLocalCompare(VersionEntity checkResult) {
-        if (checkResult.getUpdateStatus() != ApkVersionResult.NO_NEW_VERSION) {
-            //服务端返回需要更新
-            int lastVersionCode = Integer.parseInt(checkResult.getVersionCode());
-            if (lastVersionCode <= UpdateUtils.getVersionCode(Xupdate.getContext())) {
-                //最新版本小于等于现在的版本，不需要更新
-                checkResult.setRequireUpgrade(ApkVersionResult.NO_NEW_VERSION);
+        //服务端返回需要更新
+        int lastVersionCode = checkResult.getVersionCode();
+        if (lastVersionCode <= UpdateUtils.getVersionCode(Xupdate.getContext())) {
+            //最新版本小于等于现在的版本，不需要更新
+            checkResult.setUpdateStatus(ApkVersionResult.NO_NEW_VERSION);
+        } else {
+            if (checkResult.isForceUpdate()) {
+                checkResult.setUpdateStatus(ApkVersionResult.HAVE_NEW_VERSION_FORCED_UPLOAD);
+            } else {
+                checkResult.setUpdateStatus(ApkVersionResult.HAVE_NEW_VERSION);
             }
         }
         return checkResult;
