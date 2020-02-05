@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
+import com.foodsecurity.xupdate.entity.ApkVersionResult;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.exception.UpdateException;
 import com.foodsecurity.xupdate.proxy.IUpdateChecker;
@@ -14,9 +15,9 @@ import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.DownloadService;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 
+import java.util.List;
 import java.util.Map;
 
-import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_APK_CACHE_DIR_EMPTY;
 import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_JSON_EMPTY;
 import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NET_REQUEST;
 import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_NO_NEW_VERSION;
@@ -29,7 +30,7 @@ import static com.foodsecurity.xupdate.exception.UpdateException.Error.CHECK_UPD
  * @author zhujianwei134
  * @since 2018/7/2 下午10:21
  */
-public class DefaultUpdateChecker implements IUpdateChecker {
+public class PostChecker implements IUpdateChecker {
 
     @Override
     public void onBeforeCheck() {
@@ -109,29 +110,6 @@ public class DefaultUpdateChecker implements IUpdateChecker {
 
     @Override
     public void processCheckResult(@NonNull String result, @NonNull IUpdateProxy updateProxy) {
-        try {
-            UpdateEntity updateEntity = updateProxy.parseJson(result);
-            if (updateEntity != null) {
-                if (updateEntity.isHasUpdate()) {
-                    // 校验是否是已忽略版本
-                    if (UpdateUtils.isIgnoreVersion(updateProxy.getContext(), updateEntity.getVersionName())) {
-                        // UpdateFacade.onUpdateError(CHECK_IGNORED_VERSION);
-                        // 校验apk下载缓存目录是否为空
-                    } else if (TextUtils.isEmpty(updateEntity.getApkCacheDir())) {
-                        UpdateFacade.onUpdateError(CHECK_APK_CACHE_DIR_EMPTY);
-                    } else {
-                        updateProxy.findNewVersion(updateEntity, updateProxy);
-                    }
-                } else {
-                    UpdateFacade.onUpdateError(CHECK_NO_NEW_VERSION);
-                }
-            } else {
-                UpdateFacade.onUpdateError(CHECK_PARSE, "json:" + result);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            UpdateFacade.onUpdateError(CHECK_PARSE, e.getMessage());
-        }
-    }
 
+    }
 }

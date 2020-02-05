@@ -36,7 +36,7 @@ public class BundleUpdateChecker implements IUpdateChecker {
     }
 
     @Override
-    public void checkVersion(boolean isGet, @NonNull String url, @NonNull Map<String, String> params, final @NonNull IUpdateProxy updateProxy) {
+    public void check(boolean isGet, @NonNull String url, @NonNull Map<String, String> params, final @NonNull IUpdateProxy updateProxy) {
         if (DownloadService.isRunning() || UpdateFacade.isShowUpdatePrompter()) {
             updateProxy.onAfterCheck();
             UpdateFacade.onUpdateError(CHECK_UPDATING);

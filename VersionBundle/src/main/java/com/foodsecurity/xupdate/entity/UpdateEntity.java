@@ -15,7 +15,7 @@ import com.foodsecurity.xupdate.proxy.IUpdateHttpService;
  * @author zhujianwei134
  * @since 2018/6/29 下午9:33
  */
-public class UpdateEntity extends PluginEntity implements Parcelable {
+public class UpdateEntity implements Parcelable {
     //===========是否可以升级=============//
     /**
      * 是否有新版本
@@ -39,8 +39,27 @@ public class UpdateEntity extends PluginEntity implements Parcelable {
      */
     private String fileName;
 
+    private String name;
 
+    /**
+     * 版本号
+     */
+    private int versionCode;
 
+    /**
+     * 版本名称
+     */
+    private String versionName;
+
+    /**
+     * 别名
+     */
+    private String alias;
+
+    /**
+     * 插件类型, 1 原生， 2 本地H5, 3 H5链接
+     */
+    private int type;
     /**
      * 更新内容
      */
@@ -201,6 +220,51 @@ public class UpdateEntity extends PluginEntity implements Parcelable {
     public UpdateEntity setMd5(String md5) {
         downloadEntity.setMd5(md5);
         return this;
+    }
+
+    public int getVersionCode() {
+        return versionCode;
+    }
+
+    public UpdateEntity setVersionCode(int versionCode) {
+        this.versionCode = versionCode;
+        return this;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public UpdateEntity setVersionName(String versionName) {
+        this.versionName = versionName;
+        return this;
+    }
+
+    public UpdateEntity setAlias(String alias) {
+        this.alias = alias;
+        return this;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public UpdateEntity setType(int type) {
+        this.type = type;
+        return this;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public UpdateEntity setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public long getSize() {

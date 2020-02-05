@@ -36,6 +36,11 @@ public interface IUpdateProxy {
     /**
      * 开始版本更新
      */
+    void post();
+
+    /**
+     * 开始版本更新
+     */
     void update();
 
     /**

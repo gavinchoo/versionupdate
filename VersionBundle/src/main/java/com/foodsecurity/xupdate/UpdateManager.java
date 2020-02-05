@@ -172,6 +172,16 @@ public class UpdateManager implements IUpdateProxy {
         return mIUpdateHttpService;
     }
 
+    @Override
+    public void post() {
+        UpdateLog.d("Xupdate.update()启动:" + toString());
+        if (mIUpdateProxy != null) {
+            mIUpdateProxy.post();
+        } else {
+            doPost();
+        }
+    }
+
     /**
      * 开始版本更新
      */
@@ -190,6 +200,40 @@ public class UpdateManager implements IUpdateProxy {
         UpdateLog.d("Xupdate.setBundleNewVersion()启动:" + toString());
         UpdateFacade.initUpdateBundle(this, mIUpdateBundlePrompter);
         update();
+    }
+
+    /**
+     * 执行版本更新操作
+     */
+    private void doPost() {
+        onBeforeCheck();
+        if (mIsWifiOnly) {
+            if (UpdateUtils.checkWifi(mContext)) {
+                checkPost();
+            } else {
+                onAfterCheck();
+                UpdateFacade.onUpdateError(CHECK_NO_WIFI);
+            }
+        } else {
+            if (UpdateUtils.checkNetwork(mContext)) {
+                checkPost();
+            } else {
+                onAfterCheck();
+                UpdateFacade.onUpdateError(CHECK_NO_NETWORK);
+            }
+        }
+    }
+
+    private void checkPost() {
+        UpdateLog.d("开始获取数据...");
+        if (mIUpdateProxy != null) {
+            mIUpdateProxy.checkVersion();
+        } else {
+            if (TextUtils.isEmpty(mUpdateUrl)) {
+                throw new NullPointerException("[UpdateManager] : mUpdateUrl 不能为空");
+            }
+            mIUpdateChecker.check(mIsGet, mUpdateUrl, mParams, this);
+        }
     }
 
     /**
@@ -239,7 +283,7 @@ public class UpdateManager implements IUpdateProxy {
             if (TextUtils.isEmpty(mUpdateUrl)) {
                 throw new NullPointerException("[UpdateManager] : mUpdateUrl 不能为空");
             }
-            mIUpdateChecker.checkVersion(mIsGet, mUpdateUrl, mParams, this);
+            mIUpdateChecker.check(mIsGet, mUpdateUrl, mParams, this);
         }
     }
 
@@ -523,7 +567,7 @@ public class UpdateManager implements IUpdateProxy {
          * @param updateUrl
          * @return
          */
-        public Builder updateUrl(@NonNull String updateUrl) {
+        public Builder url(@NonNull String updateUrl) {
             this.updateUrl = updateUrl;
             return this;
         }
@@ -738,6 +782,13 @@ public class UpdateManager implements IUpdateProxy {
                 apkCacheDir = UpdateUtils.getDiskCacheDir(this.context, "xupdate");
             }
             return new UpdateManager(this);
+        }
+
+        /**
+         * 进行版本更新
+         */
+        public void post() {
+            build().post();
         }
 
         /**

@@ -5,6 +5,11 @@ package com.foodsecurity.xupdate.entity;
  * @date 2020-02-04 11:15
  */
 public class PluginEntity {
+
+    protected String id;
+
+    protected String name;
+
     /**
      * 版本号
      */
@@ -25,6 +30,14 @@ public class PluginEntity {
      */
     protected int type;
 
+    protected String logo;
+
+    protected String logourl;
+
+    protected String packageName;
+
+    private UpdateEntity updateInfo;
+
     public int getVersionCode() {
         return versionCode;
     }
@@ -33,11 +46,6 @@ public class PluginEntity {
         this.versionCode = versionCode;
         return this;
     }
-
-    /**
-     * 产品名称
-     */
-    protected String name;
 
     public String getVersionName() {
         return versionName;
@@ -73,5 +81,45 @@ public class PluginEntity {
 
     public String getName() {
         return name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public String getLogourl() {
+        return logourl;
+    }
+
+    public void setLogourl(String logourl) {
+        this.logourl = logourl;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public void setUpdateInfo(UpdateEntity updateInfo) {
+        this.updateInfo = updateInfo;
+    }
+
+    public UpdateEntity getUpdateInfo() {
+        return updateInfo;
     }
 }

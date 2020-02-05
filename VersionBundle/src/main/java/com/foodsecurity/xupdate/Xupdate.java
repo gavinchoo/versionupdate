@@ -164,7 +164,7 @@ public class Xupdate {
      */
     public static UpdateManager.Builder newBuild(@NonNull Context context, String updateUrl) {
         return new UpdateManager.Builder(context)
-                .updateUrl(updateUrl);
+                .url(updateUrl);
     }
 
     //===========================属性设置===================================//

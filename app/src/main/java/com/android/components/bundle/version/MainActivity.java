@@ -13,14 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.Xupdate;
+import com.foodsecurity.xupdate.entity.PluginEntity;
+import com.foodsecurity.xupdate.entity.PluginsResult;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.proxy.impl.BundleUpdateChecker;
+import com.foodsecurity.xupdate.proxy.impl.PostChecker;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
 import com.pingan.foodsecurity.bundle.version.R;
@@ -38,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
 
+    private PluginAdapter pluginAdapter;
+
+    private List<PluginEntity> pluginEntities;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         initUpdate();
 
         checkMainAppVersion();
-        checkBundlesVersion();
+
+        checkBundles();
 
         testPluginVersion();
     }
@@ -54,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private void testPluginVersion() {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
-        List<UpdateEntity> pluginVersions = new ArrayList<>();
+        List<PluginEntity> pluginVersions = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            UpdateEntity updateEntity = new UpdateEntity();
+            PluginEntity updateEntity = new PluginEntity();
             updateEntity.setAlias("aaaaaaa" + i);
             updateEntity.setName("name" + i);
             pluginVersions.add(updateEntity);
@@ -73,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 .param("versionCode", "" + UpdateUtils.getVersionCode(this))
                 .param("appKey", getPackageName())
                 .supportBackgroundUpdate(true)
-                .updateUrl(baseUrl + "/version/queryversion")
+                .url(baseUrl + "/version/queryversion")
                 .update();
     }
 
@@ -88,10 +95,35 @@ public class MainActivity extends AppCompatActivity {
                 .param("pluginVersionCode", "")
                 .updateBundlePrompter(new BundleUpdatePrompter())
                 .updateChecker(new BundleUpdateChecker())
-                .updateUrl(baseUrl + "/version/querybundleversion")
+                .url(baseUrl + "/version/querybundleversion")
                 .updateBundle();
     }
 
+    /**
+     * 检测插件版本信息
+     */
+    private void checkBundles() {
+        Xupdate.newBuild(this)
+                .param("versionCode", "" + UpdateUtils.getVersionCode(this))
+                .param("appKey", getPackageName())
+                .updateChecker(new PluginInfoChecker())
+                .url(baseUrl + "/version/querybundle")
+                .post();
+    }
+
+
+    public class PluginInfoChecker extends PostChecker {
+        @Override
+        public void processCheckResult(@NonNull String result, @NonNull IUpdateProxy updateProxy) {
+            PluginsResult pluginsResult = UpdateUtils.fromJson(result, PluginsResult.class);
+            pluginEntities = pluginsResult.getData();
+            if (null != pluginEntities && pluginEntities.size() > 0) {
+                pluginAdapter = new PluginAdapter(MainActivity.this, pluginEntities);
+                recyclerView.setAdapter(pluginAdapter);
+                checkBundlesVersion();
+            }
+        }
+    }
 
     /**
      * 插件检测版本信息，下载更新回调
@@ -105,8 +137,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void showBundlePrompt(@NonNull List<UpdateEntity> updateEntity, @NonNull IUpdateProxy updateProxy, @NonNull PromptEntity promptEntity) {
             UpdateLog.i("showBundlePrompt");
-            PluginAdapter pluginAdapter = new PluginAdapter(MainActivity.this, updateEntity);
-            recyclerView.setAdapter(pluginAdapter);
+            for (int i = 0; i < pluginEntities.size(); i++) {
+                for (int j = 0; j < updateEntity.size(); j++) {
+                    if (pluginEntities.get(i).getAlias().equals(updateEntity.get(j).getAlias())) {
+                        pluginEntities.get(i).setUpdateInfo(updateEntity.get(j));
+                        continue;
+                    }
+                }
+            }
+            pluginAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -148,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     public class PluginAdapter extends RecyclerView.Adapter<PluginAdapter.ViewHolder> {
 
-        private List<UpdateEntity> mPluginList;
+        private List<PluginEntity> mPluginList;
         private Context mContext;
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -162,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        public PluginAdapter(Context context, List<UpdateEntity> fruitList) {
+        public PluginAdapter(Context context, List<PluginEntity> fruitList) {
             mContext = context;
             mPluginList = fruitList;
         }
@@ -176,10 +215,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final UpdateEntity updateEntity = mPluginList.get(position);
-            holder.pluginName.setText(updateEntity.getName());
-            holder.newVersionImage.setVisibility(updateEntity.isHasUpdate() ? View.VISIBLE : View.GONE);
+            final PluginEntity pluginEntity = mPluginList.get(position);
+            holder.pluginName.setText(pluginEntity.getName());
 
+            final UpdateEntity updateEntity = pluginEntity.getUpdateInfo();
+            holder.newVersionImage.setVisibility(updateEntity.isHasUpdate() ? View.VISIBLE : View.GONE);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

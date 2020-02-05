@@ -87,7 +87,7 @@ public class PluginH5 implements PluginBase {
             if (!bundles[i].isDirectory()) {
                 continue;
             }
-            UpdateEntity updateEntity = new UpdateEntity();
+            PluginEntity updateEntity = new PluginEntity();
             String bundle = bundles[i].getName();
             if (bundle.length() > 0 && bundle.indexOf("_") != -1) {
                 String bundleAlias = bundle.substring(0, bundle.lastIndexOf("_"));
@@ -110,7 +110,7 @@ public class PluginH5 implements PluginBase {
                     }
                 }
             }
-            updateEntity.setFileName(bundle);
+//            updateEntity.setFileName(bundle);
             localVersionInfo.add(updateEntity);
         }
         UpdateLog.i("获取本地插件版本信息：" + localVersionInfo.toString());

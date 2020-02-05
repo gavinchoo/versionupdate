@@ -27,7 +27,7 @@ public interface IUpdateChecker {
      * @param params      请求参数
      * @param updateProxy 版本更新代理
      */
-    void checkVersion(boolean isGet, @NonNull String url, @NonNull Map<String, String> params, @NonNull IUpdateProxy updateProxy);
+    void check(boolean isGet, @NonNull String url, @NonNull Map<String, String> params, @NonNull IUpdateProxy updateProxy);
 
     /**
      * 版本检查之后
