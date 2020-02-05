@@ -16,6 +16,8 @@ public class PluginVersionEntity extends BaseVersionEntity {
 
     private String pluginKey;
 
+    private int pluginType;
+
     public String getPluginAlias() {
         return pluginAlias;
     }
@@ -46,6 +48,14 @@ public class PluginVersionEntity extends BaseVersionEntity {
 
     public void setPluginKey(String pluginKey) {
         this.pluginKey = pluginKey;
+    }
+
+    public int getPluginType() {
+        return pluginType;
+    }
+
+    public void setPluginType(int pluginType) {
+        this.pluginType = pluginType;
     }
 
     @Override

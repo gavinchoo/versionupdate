@@ -1,23 +1,22 @@
 package com.foodsecurity.xupdate.widget;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.foodsecurity.xupdate.UpdateFacade;
+import com.foodsecurity.xupdate.Xupdate;
 import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.entity.PromptEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
-import com.foodsecurity.xupdate.logs.UpdateLog;
 import com.foodsecurity.xupdate.plugin.PluginBase;
 import com.foodsecurity.xupdate.plugin.impl.PluginH5;
 import com.foodsecurity.xupdate.plugin.impl.PluginNative;
 import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.service.OnFileDownloadListener;
-import com.qihoo360.replugin.RePlugin;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +49,19 @@ public class UpdateBundleMgr {
      */
     public static final String BUNDLE_STATUS_NOT_INSTALL_NO_VERSION = "not_install_no_version_info";
 
+    /**
+     * 插件类型 原生
+     */
+    public static final int PLUGIN_TYPE_NATIVE = 1;
+    /**
+     * 插件类型 H5本地
+     */
+    public static final int PLUGIN_TYPE_NATIVE_H5 = 2;
+    /**
+     * 插件类型 H5链接
+     */
+    public static final int PLUGIN_TYPE_H5_LINK = 3;
+
     private static UpdateBundleMgr sInstance;
 
     /**
@@ -64,6 +76,8 @@ public class UpdateBundleMgr {
      * 提示器参数信息
      */
     private PromptEntity mPromptEntity;
+
+    private Context mContext;
 
     private PluginBase mPluginH5;
     private PluginBase mPluginNative;
@@ -82,8 +96,13 @@ public class UpdateBundleMgr {
     }
 
     public UpdateBundleMgr() {
-        mPluginH5 = new PluginH5();
-        mPluginNative = new PluginNative();
+
+    }
+
+    public void init(Context context) {
+        mContext = context;
+        mPluginH5 = new PluginH5(context);
+        mPluginNative = new PluginNative(context);
     }
 
     /**
@@ -93,7 +112,7 @@ public class UpdateBundleMgr {
      * @param promptEntity 提示器参数信息
      * @return
      */
-    public void init(@NonNull List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
+    public void setPluginsUpdateInfo(@NonNull List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
         setPromptEntity(promptEntity);
         setUpdateEntity(updateEntity);
     }
@@ -115,6 +134,14 @@ public class UpdateBundleMgr {
 
     public void setPromptEntity(PromptEntity promptEntity) {
         this.mPromptEntity = promptEntity;
+    }
+
+    public PluginBase getPluginH5() {
+        return mPluginH5;
+    }
+
+    public PluginBase getPluginNative() {
+        return mPluginNative;
     }
 
     public PluginEntity installH5(String alias, String path){
@@ -165,10 +192,10 @@ public class UpdateBundleMgr {
         }
 
         if (TextUtils.isEmpty(newUpdate.getApkCacheDir())) {
-            if (newUpdate.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
-                newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPathH5());
+            if (newUpdate.getType() == PLUGIN_TYPE_NATIVE_H5) {
+                newUpdate.setApkCacheDir(mPluginH5.getRootPath());
             } else {
-                newUpdate.setApkCacheDir(UpdateFacade.getBundlesRootPathNative());
+                newUpdate.setApkCacheDir(mPluginNative.getRootPath());
             }
         }
         mIUpdateProxy.setUpdateEntity(newUpdate);
@@ -180,12 +207,31 @@ public class UpdateBundleMgr {
         return false;
     }
 
+    public void updateBundlesVersion(UpdateEntity entity, OnFileDownloadListener listener) {
+        if (entity.getType() == PLUGIN_TYPE_NATIVE) {
+            entity.setApkCacheDir(mPluginNative.getRootPath());
+        } else if (entity.getType() == PLUGIN_TYPE_NATIVE_H5) {
+            entity.setApkCacheDir(mPluginH5.getRootPath());
+        }
+        mIUpdateProxy.setUpdateEntity(entity);
+        mIUpdateProxy.startDownload(entity, listener);
+    }
+
+    /**
+     * 直接下载安装插件
+     */
+    public void updateBundlesVersion(final UpdateEntity entity) {
+        updateBundlesVersion(entity, mOnFileDownloadListener);
+    }
+
     public String getBundleStatus(String alias, UpdateEntity newUpdate) {
-        PluginEntity localUpdate;
-        if (newUpdate.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+        PluginEntity localUpdate = null;
+        if (newUpdate.getType() == PLUGIN_TYPE_NATIVE_H5) {
             localUpdate = mPluginH5.getPluginInfo(alias);
         } else {
-            localUpdate = mPluginNative.getPluginInfo(alias);
+            if (mPluginNative.isPluginInstalled(alias)) {
+                localUpdate = mPluginNative.getPluginInfo(alias);
+            }
         }
 
         if (null == localUpdate && null == newUpdate) {
@@ -228,14 +274,14 @@ public class UpdateBundleMgr {
         @Override
         public void onStart() {
             if (null != mUpdatePrompter) {
-                mUpdatePrompter.onStart(mIUpdateProxy.getUpdateEntity());
+                mUpdatePrompter.beforDownloadStart(mIUpdateProxy.getUpdateEntity());
             }
         }
 
         @Override
         public void onProgress(long total, float progress) {
             if (null != mUpdatePrompter) {
-                mUpdatePrompter.onProgress(mIUpdateProxy.getUpdateEntity(), progress);
+                mUpdatePrompter.downloadProgress(mIUpdateProxy.getUpdateEntity(), progress);
             }
         }
 
@@ -244,7 +290,7 @@ public class UpdateBundleMgr {
             //返回true，自动进行apk安装
             UpdateFacade.startInstallBundle(mIUpdateProxy.getContext(), mIUpdateProxy.getUpdateEntity(), file);
             if (null != mUpdatePrompter) {
-                mUpdatePrompter.onCompleted(mIUpdateProxy.getUpdateEntity());
+                mUpdatePrompter.installCompleted(mIUpdateProxy.getUpdateEntity());
             }
             return false;
         }
@@ -252,7 +298,7 @@ public class UpdateBundleMgr {
         @Override
         public void onError(Throwable throwable) {
             if (null != mUpdatePrompter) {
-                mUpdatePrompter.onError(mIUpdateProxy.getUpdateEntity(), throwable);
+                mUpdatePrompter.downloadError(mIUpdateProxy.getUpdateEntity(), throwable);
             }
         }
     };

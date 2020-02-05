@@ -22,6 +22,7 @@ import com.foodsecurity.xupdate.proxy.IUpdateBundlePrompter;
 import com.foodsecurity.xupdate.proxy.IUpdateProxy;
 import com.foodsecurity.xupdate.proxy.impl.BundleUpdateChecker;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
+import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
 import com.pingan.foodsecurity.bundle.version.R;
 import com.qihoo360.replugin.RePlugin;
 
@@ -109,24 +110,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onStart(UpdateEntity updateEntity) {
+        public void beforDownloadStart(UpdateEntity updateEntity) {
 
         }
 
         @Override
-        public void onProgress(UpdateEntity updateEntity, float progress) {
+        public void downloadProgress(UpdateEntity updateEntity, float progress) {
 
         }
 
         @Override
-        public void onCompleted(UpdateEntity updateEntity) {
+        public void installCompleted(UpdateEntity updateEntity) {
             Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
             intent.putExtra("bundle", updateEntity.getAlias());
             startActivity(intent);
         }
 
         @Override
-        public void onError(UpdateEntity updateEntity, Throwable throwable) {
+        public void downloadError(UpdateEntity updateEntity, Throwable throwable) {
 
         }
     }
@@ -183,19 +184,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (updateEntity.isHasUpdate()) {
-                        Xupdate.get().updateBundlesVersion(mContext, updateEntity);
+                        Xupdate.get().updateBundlesVersion(updateEntity);
                     } else {
                         if (Xupdate.get()
                                 .canOpenBundle(updateEntity.getAlias())) {
                             // 原生插件
-                            if (updateEntity.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE) {
+                            if (updateEntity.getType() == UpdateBundleMgr.PLUGIN_TYPE_NATIVE) {
                                 RePlugin.startActivity(mContext, RePlugin.createIntent(updateEntity.getAlias(), "com.qihoo360.replugin.sample.demo3.MainActivity"));
-                            } else if (updateEntity.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+                            } else if (updateEntity.getType() == UpdateBundleMgr.PLUGIN_TYPE_NATIVE_H5) {
                                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
                                 intent.putExtra("bundle", updateEntity.getAlias());
                                 intent.putExtra("type", updateEntity.getType());
                                 startActivity(intent);
-                            } else if (updateEntity.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+                            } else if (updateEntity.getType() == UpdateBundleMgr.PLUGIN_TYPE_NATIVE_H5) {
                                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
                                 intent.putExtra("url", updateEntity.getAlias());
                                 intent.putExtra("type", updateEntity.getType());

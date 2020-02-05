@@ -57,8 +57,9 @@ public class PluginEntity {
         return alias;
     }
 
-    public void setType(int type) {
+    public PluginEntity setType(int type) {
         this.type = type;
+        return this;
     }
 
     public int getType() {

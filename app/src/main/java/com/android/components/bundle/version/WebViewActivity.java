@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-import com.foodsecurity.xupdate.UpdateFacade;
 import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
 import com.pingan.foodsecurity.bundle.version.R;
@@ -23,10 +22,10 @@ public class WebViewActivity extends AppCompatActivity {
         PluginEntity updateEntity = UpdateBundleMgr.get().getPluginInfo(bundleName);
         WebView webView = findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
-        if (type == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+        if (type == UpdateBundleMgr.PLUGIN_TYPE_NATIVE_H5) {
             webView.loadUrl("file:" + getFilesDir() + File.separator + "jsbundles/"
                     + updateEntity.getAlias() + "_" + updateEntity.getVersionName() + "/index.html#/");
-        } else if (type == UpdateFacade.PLUGIN_TYPE_H5_LINK) {
+        } else if (type == UpdateBundleMgr.PLUGIN_TYPE_H5_LINK) {
             webView.loadUrl("file:///android_asset/index.html#/");
         }
     }

@@ -9,6 +9,7 @@ import java.util.List;
  * @date 2020-02-04 11:08
  */
 public interface PluginBase {
+    String getRootPath();
     PluginEntity install(String pluginName, String path);
     boolean uninstall(String pluginName);
     boolean isPluginInstalled(String pluginName);

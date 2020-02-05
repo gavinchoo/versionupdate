@@ -1,5 +1,7 @@
 package com.foodsecurity.xupdate.plugin.impl;
 
+import android.content.Context;
+
 import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.plugin.PluginBase;
 import com.qihoo360.replugin.RePlugin;
@@ -13,6 +15,17 @@ import java.util.List;
  * @date 2020-02-04 11:24
  */
 public class PluginNative implements PluginBase {
+
+    private Context mContext;
+    public PluginNative (Context context) {
+        mContext = context;
+    }
+
+    @Override
+    public String getRootPath() {
+        return mContext.getFilesDir().getAbsolutePath();
+    }
+
     @Override
     public PluginEntity install(String pluginName, String path) {
         PluginInfo repluginInfo = RePlugin.install(path);

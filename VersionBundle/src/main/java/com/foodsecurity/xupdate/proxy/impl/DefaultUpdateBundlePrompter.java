@@ -43,22 +43,22 @@ public class DefaultUpdateBundlePrompter implements IUpdateBundlePrompter {
     }
 
     @Override
-    public void onStart(UpdateEntity updateEntity) {
+    public void beforDownloadStart(UpdateEntity updateEntity) {
 
     }
 
     @Override
-    public void onProgress(UpdateEntity updateEntity, float progress) {
+    public void downloadProgress(UpdateEntity updateEntity, float progress) {
 
     }
 
     @Override
-    public void onCompleted(UpdateEntity updateEntity) {
+    public void installCompleted(UpdateEntity updateEntity) {
 
     }
 
     @Override
-    public void onError(UpdateEntity updateEntity, Throwable throwable) {
+    public void downloadError(UpdateEntity updateEntity, Throwable throwable) {
 
     }
 }

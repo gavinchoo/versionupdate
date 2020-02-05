@@ -21,6 +21,7 @@ import com.foodsecurity.xupdate.proxy.IUpdateParser;
 import com.foodsecurity.xupdate.proxy.impl.DefaultUpdateChecker;
 import com.foodsecurity.xupdate.proxy.impl.DefaultUpdateDownloader;
 import com.foodsecurity.xupdate.proxy.impl.DefaultUpdateParser;
+import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -367,15 +368,15 @@ public class Xupdate {
     }
 
     public boolean isInstalled(String alias, int type) {
-        if (type == UpdateFacade.PLUGIN_TYPE_NATIVE) {
+        if (type == UpdateBundleMgr.PLUGIN_TYPE_NATIVE) {
             return UpdateFacade.isInstalledNative(alias);
-        } else if (type == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
+        } else if (type == UpdateBundleMgr.PLUGIN_TYPE_NATIVE_H5) {
             return UpdateFacade.isInstalledH5(alias);
         }
         return true;
     }
 
-    public void updateBundlesVersion(Context context, UpdateEntity entity) {
-        UpdateFacade.updateBundlesVersion(context, entity);
+    public void updateBundlesVersion(UpdateEntity entity) {
+        UpdateFacade.updateBundlesVersion(entity);
     }
 }

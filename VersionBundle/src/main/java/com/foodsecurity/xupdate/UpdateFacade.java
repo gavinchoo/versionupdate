@@ -42,19 +42,6 @@ import static com.foodsecurity.xupdate.exception.UpdateException.Error.INSTALL_F
 public final class UpdateFacade {
 
     /**
-     * 插件类型 原生
-     */
-    public static final int PLUGIN_TYPE_NATIVE = 1;
-    /**
-     * 插件类型 H5本地
-     */
-    public static final int PLUGIN_TYPE_NATIVE_H5 = 2;
-    /**
-     * 插件类型 H5链接
-     */
-    public static final int PLUGIN_TYPE_H5_LINK = 3;
-
-    /**
      * 标志当前更新提示是否已显示
      */
     private static boolean sIsShowUpdatePrompter = false;
@@ -147,6 +134,7 @@ public final class UpdateFacade {
     public static void startInstallBundle(@NonNull Context context, @NonNull File apkFile, UpdateEntity updateEntity, @NonNull DownloadEntity downloadEntity) {
         UpdateLog.d("开始安装Bundle文件, 文件路径:" + apkFile.getAbsolutePath() + ", 下载信息:" + downloadEntity);
         if (onInstallBundle(context, apkFile, updateEntity, downloadEntity)) {
+            updateEntity.setHasUpdate(true);
             onBundleInstallSuccess(); //静默安装的话，不会回调到这里
         } else {
             onUpdateError(INSTALL_FAILED);
@@ -248,19 +236,15 @@ public final class UpdateFacade {
         Xupdate.get().mOnUpdateFailureListener.onFailure(updateError);
     }
 
-    public static String getBundlesRootPathH5() {
-        return Xupdate.getContext().getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
+    public static void initBundleMgr(Context context) {
+        UpdateBundleMgr.get().init(context);
     }
 
-    public static String getBundlesRootPathNative() {
-        return Xupdate.getContext().getFilesDir().getAbsolutePath();
-    }
-
-    public static void setBundleNewVersion(Context context, List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
-        UpdateBundleMgr.get().init(updateEntity, promptEntity);
+    public static void setBundleNewVersion(List<UpdateEntity> updateEntity, PromptEntity promptEntity) {
+        UpdateBundleMgr.get().setPluginsUpdateInfo(updateEntity, promptEntity);
         for (int i = 0; i < updateEntity.size(); i++) {
             if (updateEntity.get(i).isSilent()) {
-                updateBundlesVersion(context, updateEntity.get(i));
+                updateBundlesVersion(updateEntity.get(i));
             }
         }
     }
@@ -271,17 +255,7 @@ public final class UpdateFacade {
                 .setUpdatePrompter(updatePrompter);
     }
 
-    public static void updateBundlesVersion(Context context, UpdateEntity entity, OnFileDownloadListener listener) {
-        if (entity.getType() == PLUGIN_TYPE_NATIVE) {
-            entity.setApkCacheDir(UpdateFacade.getBundlesRootPathNative());
-        } else if (entity.getType() == PLUGIN_TYPE_NATIVE_H5) {
-            entity.setApkCacheDir(UpdateFacade.getBundlesRootPathH5());
-        }
-        Xupdate.newBuild(context)
-                .apkCacheDir(entity.getApkCacheDir())
-                .build()
-                .download(entity.getDownloadUrl(), entity.getFileName(), listener);
-    }
+
 
     public static boolean isInstalledH5(String alias) {
         return UpdateBundleMgr.get().isInstalledH5(alias);
@@ -295,31 +269,14 @@ public final class UpdateFacade {
         return UpdateBundleMgr.get().canOpen(alias);
     }
 
+    public static void updateBundlesVersion(UpdateEntity entity, OnFileDownloadListener listener) {
+        UpdateBundleMgr.get().updateBundlesVersion(entity, listener);
+    }
+
     /**
      * 直接下载安装插件
      */
-    public static void updateBundlesVersion(final Context context, final UpdateEntity entity) {
-        updateBundlesVersion(context, entity, new OnFileDownloadListener() {
-            @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onProgress(long total, float progress) {
-
-            }
-
-            @Override
-            public boolean onCompleted(File file) {
-                UpdateFacade.startInstallBundle(Xupdate.getContext(), entity, file);
-                return false;
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-
-            }
-        });
+    public static void updateBundlesVersion(final UpdateEntity entity) {
+        UpdateBundleMgr.get().updateBundlesVersion(entity);
     }
 }

@@ -144,6 +144,8 @@ public class UpdateManager implements IUpdateProxy {
         mIUpdatePrompter = builder.updatePrompter;
         mIUpdateBundlePrompter = builder.updateBundlePrompter;
         mPromptEntity = builder.promptEntity;
+
+        UpdateFacade.initBundleMgr(mContext);
     }
 
     /**
@@ -346,13 +348,13 @@ public class UpdateManager implements IUpdateProxy {
         } else {
             if (mIUpdateBundlePrompter instanceof DefaultUpdateBundlePrompter) {
                 if (mContext != null && !((Activity) mContext).isFinishing()) {
-                    UpdateFacade.setBundleNewVersion(updateProxy.getContext(), updateEntity, mPromptEntity);
+                    UpdateFacade.setBundleNewVersion(updateEntity, mPromptEntity);
                     mIUpdateBundlePrompter.showBundlePrompt(updateEntity, updateProxy, mPromptEntity);
                 } else {
                     UpdateFacade.onUpdateError(PROMPT_ACTIVITY_DESTROY);
                 }
             } else {
-                UpdateFacade.setBundleNewVersion(updateProxy.getContext(), updateEntity, mPromptEntity);
+                UpdateFacade.setBundleNewVersion(updateEntity, mPromptEntity);
                 mIUpdateBundlePrompter.showBundlePrompt(updateEntity, updateProxy, mPromptEntity);
             }
         }

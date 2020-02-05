@@ -33,7 +33,7 @@ public interface IUpdateBundlePrompter {
      * 插件下载之前
      * @param updateEntity
      */
-    void onStart(UpdateEntity updateEntity);
+    void beforDownloadStart(UpdateEntity updateEntity);
 
     /**
      * 插件下载更新进度
@@ -41,7 +41,7 @@ public interface IUpdateBundlePrompter {
      * @param updateEntity
      * @param progress 进度0.00 - 0.50  - 1.00
      */
-    void onProgress(UpdateEntity updateEntity, float progress);
+    void downloadProgress(UpdateEntity updateEntity, float progress);
 
     /**
      * 下载安装完毕
@@ -49,7 +49,7 @@ public interface IUpdateBundlePrompter {
      * @param updateEntity
      * @return 下载完毕后是否打开文件进行安装<br>{@code true} ：安装<br>{@code false} ：不安装
      */
-    void onCompleted(UpdateEntity updateEntity);
+    void installCompleted(UpdateEntity updateEntity);
 
     /**
      * 错误回调
@@ -57,5 +57,5 @@ public interface IUpdateBundlePrompter {
      * @param updateEntity
      * @param throwable 错误提示
      */
-    void onError(UpdateEntity updateEntity, Throwable throwable);
+    void downloadError(UpdateEntity updateEntity, Throwable throwable);
 }

@@ -1,6 +1,7 @@
 package com.foodsecurity.xupdate.plugin.impl;
 
-import com.foodsecurity.xupdate.UpdateFacade;
+import android.content.Context;
+
 import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.logs.UpdateLog;
@@ -16,6 +17,17 @@ import java.util.List;
  * @date 2020-02-04 11:24
  */
 public class PluginH5 implements PluginBase {
+
+    private Context mContext;
+
+    public PluginH5 (Context context) {
+        mContext = context;
+    }
+
+    @Override
+    public String getRootPath() {
+        return mContext.getFilesDir().getAbsolutePath() + File.separator + "jsbundles";
+    }
 
     @Override
     public PluginEntity install(String pluginName, String path) {
@@ -35,7 +47,7 @@ public class PluginH5 implements PluginBase {
         for (int i = 0; i < localVersionInfo.size(); i++) {
             PluginEntity localUpdate = localVersionInfo.get(i);
             if (localUpdate.getAlias().equals(pluginName)) {
-                File file = new File(UpdateFacade.getBundlesRootPathH5() +
+                File file = new File(getRootPath() +
                         File.separator + localUpdate.getAlias() + "_" + localUpdate.getVersionName());
                 if (null != file && file.exists()) {
                     return deleteDirWihtFile(file);
@@ -66,7 +78,7 @@ public class PluginH5 implements PluginBase {
     @Override
     public List<PluginEntity> getPluginInfoList() {
         List<PluginEntity> localVersionInfo = new ArrayList<>();
-        File rootPath = new File(UpdateFacade.getBundlesRootPathH5());
+        File rootPath = new File(getRootPath());
         File[] bundles = rootPath.listFiles();
         if (null == bundles) {
             return localVersionInfo;
@@ -86,7 +98,7 @@ public class PluginH5 implements PluginBase {
             } else {
                 updateEntity.setAlias(bundle);
                 // 文件夹上没有带版本号，检查*.json文件版本号
-                File bundlePath = new File(UpdateFacade.getBundlesRootPathH5() + File.separator + bundle);
+                File bundlePath = new File(getRootPath() + File.separator + bundle);
                 File[] bundleFiles = bundlePath.listFiles();
                 if (null != bundleFiles) {
                     for (int j = 0; j < bundleFiles.length; j++) {

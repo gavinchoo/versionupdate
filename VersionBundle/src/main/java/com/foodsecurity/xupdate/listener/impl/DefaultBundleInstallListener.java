@@ -11,9 +11,7 @@ import com.foodsecurity.xupdate.entity.PluginEntity;
 import com.foodsecurity.xupdate.entity.UpdateEntity;
 import com.foodsecurity.xupdate.listener.OnInstallListener;
 import com.foodsecurity.xupdate.logs.UpdateLog;
-import com.foodsecurity.xupdate.utils.BundleInstallUtils;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
-import com.qihoo360.replugin.RePlugin;
 
 import java.io.File;
 
@@ -32,10 +30,10 @@ public class DefaultBundleInstallListener implements OnInstallListener {
         try {
             if (downloadEntity.isApkFileValid(apkFile)) {
                 PluginEntity pluginEntity;
-                if (updateEntity.getType() == UpdateFacade.PLUGIN_TYPE_NATIVE_H5) {
-                    pluginEntity = UpdateBundleMgr.get().installNative(updateEntity.getAlias(), apkFile.getPath());
-                } else {
+                if (updateEntity.getType() == UpdateBundleMgr.PLUGIN_TYPE_NATIVE_H5) {
                     pluginEntity = UpdateBundleMgr.get().installH5(updateEntity.getAlias(), apkFile.getPath());
+                } else {
+                    pluginEntity = UpdateBundleMgr.get().installNative(updateEntity.getAlias(), apkFile.getPath());
                 }
                 if (null != pluginEntity) {
                     UpdateLog.d(apkFile.getName() + " Bundle文件安装成功");
