@@ -1,20 +1,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="130dp"
-    android:layout_height="130dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_marginTop="10dp"
     android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/ll_content"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@mipmap/ic_launcher_round" />
 
         <TextView
@@ -32,6 +34,24 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
-        android:src="@mipmap/red_point_icon" />
+        android:src="@mipmap/red_point_icon"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/rl_progress"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="#80000000"
+        android:visibility="gone">
+
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            android:id="@+id/progress_view"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            app:cpv_animAutostart="true"
+            app:cpv_indeterminate="false"
+            app:cpv_progress="10" />
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -80,6 +80,8 @@ public class UpdateEntity implements Parcelable {
      */
     private boolean isAutoInstall;
 
+    private float downloadProgress;
+
     public UpdateEntity() {
         versionName = "unknown_version";
         downloadEntity = new DownloadEntity();
@@ -276,7 +278,13 @@ public class UpdateEntity implements Parcelable {
         return this;
     }
 
+    public float getDownloadProgress() {
+        return downloadProgress;
+    }
 
+    public void setDownloadProgress(float downloadProgress) {
+        this.downloadProgress = downloadProgress;
+    }
 
     public UpdateEntity setFileName(String fileName) {
         this.fileName = fileName;

@@ -123,8 +123,14 @@ public class DefaultUpdateParser implements IUpdateParser {
      * @return
      */
     private PluginVersionEntity doPluginLocalCompare(PluginVersionEntity checkResult) {
+        if (null == checkResult) {
+            return null;
+        }
         //服务端返回需要更新
         PluginEntity pluginInfo = UpdateBundleMgr.get().getPluginInfo(checkResult.getPluginAlias());
+        if (null == pluginInfo) {
+            return checkResult;
+        }
         int lastVersionCode = checkResult.getVersionCode();
         if (lastVersionCode <= pluginInfo.getVersionCode()) {
             //最新版本小于等于现在的版本，不需要更新

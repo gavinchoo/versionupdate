@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.foodsecurity.xupdate.Xupdate;
@@ -25,6 +26,7 @@ import com.foodsecurity.xupdate.proxy.impl.BundleUpdateChecker;
 import com.foodsecurity.xupdate.proxy.impl.PostChecker;
 import com.foodsecurity.xupdate.utils.UpdateUtils;
 import com.foodsecurity.xupdate.widget.UpdateBundleMgr;
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.pingan.foodsecurity.bundle.version.R;
 import com.qihoo360.replugin.RePlugin;
 
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private PluginAdapter pluginAdapter;
 
     private List<PluginEntity> pluginEntities;
+
+    private UpdateEntity downloadEntity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +159,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void downloadProgress(UpdateEntity updateEntity, float progress) {
-
+            downloadEntity = updateEntity;
+            downloadEntity.setDownloadProgress(progress);
+            pluginAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -193,11 +199,15 @@ public class MainActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView newVersionImage;
             TextView pluginName;
+            RelativeLayout rlProgress;
+            CircularProgressView progressView;
 
             public ViewHolder(View view) {
                 super(view);
-                newVersionImage = (ImageView) view.findViewById(R.id.newversion);
-                pluginName = (TextView) view.findViewById(R.id.name);
+                rlProgress = view.findViewById(R.id.rl_progress);
+                progressView = view.findViewById(R.id.progress_view);
+                newVersionImage = view.findViewById(R.id.newversion);
+                pluginName = view.findViewById(R.id.name);
             }
         }
 
@@ -219,7 +229,18 @@ public class MainActivity extends AppCompatActivity {
             holder.pluginName.setText(pluginEntity.getName());
 
             final UpdateEntity updateEntity = pluginEntity.getUpdateInfo();
-            holder.newVersionImage.setVisibility(updateEntity.isHasUpdate() ? View.VISIBLE : View.GONE);
+            if (null != updateEntity) {
+                holder.newVersionImage.setVisibility(updateEntity.isHasUpdate() ? View.VISIBLE : View.GONE);
+            }
+
+            holder.rlProgress.setVisibility(View.GONE);
+
+            if (null != downloadEntity
+                    && downloadEntity.getAlias().equals(pluginEntity.getAlias())) {
+                holder.rlProgress.setVisibility(View.VISIBLE);
+                holder.progressView.setProgress(downloadEntity.getDownloadProgress());
+            }
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
